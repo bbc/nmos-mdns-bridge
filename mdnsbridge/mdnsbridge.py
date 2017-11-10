@@ -33,6 +33,18 @@ class mDNSBridgeAPI(WebAPI):
         self.mdns = mdns
         super(mDNSBridgeAPI, self).__init__()
 
+    @route("/")
+    def namespace_resource(self):
+        return [APINAMESPACE + '/']
+
+    @route("/{}/".format(APINAMESPACE))
+    def name_resource(self):
+        return [APINAME + '/']
+
+    @route("/{}/{}/".format(APINAMESPACE, APINAME))
+    def version_resource(self):
+        return [APIVERSION + '/']
+
     @route(APIBASE)
     def base_resource(self):
         return {"resources": [value + "/" for value in VALID_TYPES]}
