@@ -1,5 +1,5 @@
 #!/bin/sh
-# postinst script for ipp-apps
+# postinst script for nmos-mdnsbridge
 #
 # see: dh_installdeb(1)
 
@@ -17,11 +17,13 @@ set -e
 # for details, see http://www.debian.org/doc/debian-policy/ or
 # the debian-policy package
 
+if dpkg-maintscript-helper supports rm_conffile; then
+        dpkg-maintscript-helper rm_conffile /etc/init/nmos-mdnsbridge.conf 0.2.0~ nmos-mdnsbridge -- "$@"
+fi
 
 case "$1" in
     configure)
-        service mdnsbridge restart || true
-        service apache2 reload
+        service apache2 reload || true
 	;;
 
 

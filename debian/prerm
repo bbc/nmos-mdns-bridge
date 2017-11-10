@@ -19,7 +19,7 @@ set -e
 
 case "$1" in
     remove|upgrade|deconfigure)
-	service mdnsbridge stop || true
+	service nmos-mdnsbridge stop || true
     ;;
 
     failed-upgrade)
