@@ -23,7 +23,7 @@ from nmoscommon import nmoscommonconfig
 
 VALID_TYPES = ["nmos-query", "nmos-registration"]
 
-APINAMESPACE = "x-nmos-opensourceprivatenamespace"
+APINAMESPACE = "x-ipstudio"
 APINAME = "mdnsbridge"
 APIVERSION = "v1.0"
 APIBASE = "/{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION)
