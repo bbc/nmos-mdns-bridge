@@ -18,6 +18,7 @@ import gevent
 import time
 from nmoscommon.webapi import *
 from nmoscommon.mdns import MDNSEngine
+# from ipppython.ifindex_utils import if_indextoname
 from flask import abort
 from nmoscommon import nmoscommonconfig
 
@@ -70,10 +71,19 @@ class mDNSBridge(object):
         srv_type = data["type"][1:].split(".")[0]
         if data["action"] == "add":
             priority = 0
+            versions = ["v1.0"]
+            protocol = "http"
             if "pri" in data["txt"]:
                 if data["txt"]["pri"].isdigit() and data["txt"]["pri"] >= 100:
                     priority = int(data["txt"]["pri"])
-            service_entry = {"name": data["name"], "address": data["address"], "port": data["port"], "txt": data["txt"], "priority": priority}
+            if "api_ver" in data["txt"]:
+                versions = data["txt"]["api_ver"].split(",")
+            if "api_proto" in data["txt"]:
+                protocol = data["txt"]["api_proto"]
+            service_entry = {
+                "name": data["name"], "address": data["address"], "port": data["port"], "txt": data["txt"],
+                "priority": priority, "versions": versions, "protocol": protocol
+            }
             for service in self.services[srv_type]:
                 if service["name"] == data["name"] and service["address"] == data["address"]:
                     service.update(service_entry)
@@ -84,10 +94,16 @@ class mDNSBridge(object):
             else:
                 if not data["address"].startswith("fe80::") and "." not in data["address"]:
                     self.services[srv_type].append(service_entry)
+            #TODO: Due to issues with python requests library, IPv6 link local addresses are not compatable with requests.request().
+            #Therefore, IPv6 Global addresses must be used for nodes to register with pipeline manager through ipppython aggregator.py
+            #Below code will allow link-local addresses to be used if requests bug is fixed
+            #else:
+                #service_entry["address"] = str(data["address"])+str("%%")+str(if_indextoname(data["interface"]))
+                #self.services[srv_type].append(service_entry)
 
         elif data["action"] == "remove":
             for service in self.services[srv_type]:
-                if service["name"] == data["name"] and service["address"] == data["address"]:
+                if service["name"] == data["name"]:
                     self.services[srv_type].remove(service)
                     break
 

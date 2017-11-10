@@ -88,7 +88,6 @@ setup(name = "nmosmdnsbridge",
       scripts = [
                 ],
       data_files=[
-          ('/lib/systemd/system', ['lib/systemd/system/mdnsbridge.service']),
           ('/usr/bin', ['bin/nmos-mdnsbridge'])
                  ],
       long_description = """
