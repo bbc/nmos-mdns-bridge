@@ -1,4 +1,4 @@
-Name: 			nmos-mdnsbridge
+Name: 			nmosmdnsbridge
 Version: 		0.1.0
 Release: 		1%{?dist}
 License: 		Internal Licence
