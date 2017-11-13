@@ -55,7 +55,7 @@ rm -rf %{buildroot}
 %{_unitdir}/nmos-mdnsbridge.service
 
 %{python2_sitelib}/mdnsbridge
-%{python2_sitelib}/nmosmdnsbrdige.egg-info
+%{python2_sitelib}/nmosmdnsbrdige-%{version}.egg-info
 
 %defattr(-,ipstudio, ipstudio,-)
 %config %{_sysconfdir}/httpd/conf.d/nmos-apis/nmos-api-mdnsbridge-v1_0.conf
