@@ -10,12 +10,12 @@ BuildArch:      noarch
 
 BuildRequires:	python2-devel
 BuildRequires:  python-setuptools
-BuildRequires:  nmos-common
+BuildRequires:  nmoscommon
 BuildRequires:	systemd
 
 Requires:       python
 Requires:       nmos-reverse-proxy
-Requires:		nmos-common
+Requires:		nmoscommon
 %{?systemd_requires}
 
 %description
