@@ -10,12 +10,12 @@ BuildArch:      noarch
 
 BuildRequires:	python2-devel
 BuildRequires:  python-setuptools
-BuildRequires:  nmos-common
+BuildRequires:  nmoscommon
 BuildRequires:	systemd
 
 Requires:       python
 Requires:       nmos-reverse-proxy
-Requires:		nmos-common
+Requires:		nmoscommon
 %{?systemd_requires}
 
 %description
@@ -31,10 +31,10 @@ mDNS to HTTP bridge service
 %{py2_install}
 
 # Install systemd unit file
-install -D -p -m 0644 debian/nmos-mdnsbridge.service %{buildroot}%{_unitdir}/nmos-mdnsbridge.service
+install -D -p -m 0644 debian/mdns-bridge.service %{buildroot}%{_unitdir}/nmos-mdnsbridge.service
 
 # Install Apache config file
-install -D -p -m 0644 etc/apache2/sites-available/nmos-api-mdnsbridge-v1_0.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/ips-apis/nmos-api-mdnsbridge-v1_0.conf
+install -D -p -m 0644 etc/apache2/sites-available/nmos-api-mdnsbridge-v1_0.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/nmos-apis/nmos-api-mdnsbridge-v1_0.conf
 
 
 %post
@@ -55,10 +55,10 @@ rm -rf %{buildroot}
 %{_unitdir}/nmos-mdnsbridge.service
 
 %{python2_sitelib}/mdnsbridge
-%{python2_sitelib}/python_mdnsbridge-%{version}*.egg-info
+%{python2_sitelib}/nmosmdnsbrdige.egg-info
 
 %defattr(-,ipstudio, ipstudio,-)
-%config %{_sysconfdir}/httpd/conf.d/ips-apis/ips-api-mdnsbridge-v1_0.conf
+%config %{_sysconfdir}/httpd/conf.d/nmos-apis/nmos-api-mdnsbridge-v1_0.conf
 
 %changelog
 * Fri Nov 10 2017 Simon Rankine <Simon.Rankine@bbc.co.uk> - 0.1.0-2
