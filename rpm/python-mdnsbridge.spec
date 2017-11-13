@@ -61,7 +61,7 @@ rm -rf %{buildroot}
 %config %{_sysconfdir}/httpd/conf.d/ips-apis/ips-api-mdnsbridge-v1_0.conf
 
 %changelog
+* Fri Nov 10 2017 Simon Rankine <Simon.Rankine@bbc.co.uk> - 0.1.0-2
+- Re-packaging for open sourcing
 * Tue Apr 25 2017 Sam Nicholson <sam.nicholson@bbc.co.uk> - 0.1.0-1
 - Initial packaging for RPM
-* Fri Nov 25 2017 Simon Rankine <Simon.Rankine@bbc.co.uk> - 0.1.0-2
-- Re-packaging for open sourcing
