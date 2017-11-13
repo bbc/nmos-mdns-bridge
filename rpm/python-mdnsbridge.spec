@@ -31,7 +31,7 @@ mDNS to HTTP bridge service
 %{py2_install}
 
 # Install systemd unit file
-install -D -p -m 0644 debian/nmos-mdns-bridge.service %{buildroot}%{_unitdir}/nmos-mdnsbridge.service
+install -D -p -m 0644 debian/mdns-bridge.service %{buildroot}%{_unitdir}/nmos-mdnsbridge.service
 
 # Install Apache config file
 install -D -p -m 0644 etc/apache2/sites-available/nmos-api-mdnsbridge-v1_0.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/ips-apis/nmos-api-mdnsbridge-v1_0.conf
