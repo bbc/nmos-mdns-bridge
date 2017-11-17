@@ -1,11 +1,11 @@
-Source: mdns-bridge
+Source: python-mdnsbridge
 Maintainer: Peter Brightwell <peter.brightwell@bbc.co.uk>
 Section: python
 Priority: optional
 Build-Depends: python-all (>= 2.6.6-3), debhelper (>= 7), dh-python, python-setuptools, dh-systemd (>= 1.5), dh-python
 Standards-Version: 3.9.7
 
-Package: mdns-bridge
+Package: python-mdnsbridge
 Architecture: all
 Pre-Depends: dpkg (>= 1.15.7.2)
 Depends: ${misc:Depends}, ${python:Depends}, python-systemd
