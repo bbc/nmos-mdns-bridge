@@ -5,3 +5,9 @@
 
 %:
 	dh $@ --with=python2,systemd --buildsystem=python_distutils
+
+# dh_installinit moans because dh_systemd installs its config files.
+# This tells it to ignore the files
+
+override_dh_installinit:
+	dh_installinit --noscripts
