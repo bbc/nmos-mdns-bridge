@@ -1,10 +1,9 @@
 [Unit]
 Description=nmos-mdnsbridge
-Wants=network-online.target avahi-daemon.service apache2.service nmos-nodefacade.service
-After=network.target network-online.target avahi-daemon.service apache2.service nmos-nodefacade.service
+Wants=network-online.target avahi-daemon.service apache2.service
+After=network.target network-online.target avahi-daemon.service apache2.service
 
 [Service]
-Type=notify
 User=ipstudio
 ExecStart=/usr/bin/nmos-mdnsbridge
 
