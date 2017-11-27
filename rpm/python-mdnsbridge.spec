@@ -38,7 +38,7 @@ install -D -p -m 0644 etc/apache2/sites-available/nmos-api-mdnsbridge-v1_0.conf 
 
 
 %post
-%systemd_post nmos-mdnsbridge.service
+%systemd_post python-mdnsbridge.service
 systemctl start nmos-mdnsbridge
 systemctl reload httpd
 
