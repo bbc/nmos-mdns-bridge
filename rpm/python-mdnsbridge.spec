@@ -52,7 +52,7 @@ rm -rf %{buildroot}
 %files
 %{_bindir}/nmos-mdnsbridge
 
-%{_unitdir}/nmos-mdnsbridge.service
+%{_unitdir}/python-mdnsbridge.service
 
 %{python2_sitelib}/mdnsbridge
 %{python2_sitelib}/nmosmdnsbridge-%{version}*.egg-info
