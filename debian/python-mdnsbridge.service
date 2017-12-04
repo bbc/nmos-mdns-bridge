@@ -1,7 +1,7 @@
 [Unit]
 Description=nmos-mdnsbridge
-Wants=network-online.target avahi-daemon.service apache2.service
-After=network.target network-online.target avahi-daemon.service apache2.service
+Wants=network-online.target avahi-daemon.service apache2.service ips-nodefacade.service
+After=network.target network-online.target avahi-daemon.service apache2.service ips-nodefacade.service
 
 [Service]
 User=ipstudio
