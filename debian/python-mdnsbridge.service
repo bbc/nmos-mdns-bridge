@@ -9,4 +9,5 @@ ExecStart=/usr/bin/nmos-mdnsbridge
 
 [Install]
 Alias=nmos-mdnsbridge.service
+Alias=ips-mdnsbridge.service
 WantedBy=multi-user.target
