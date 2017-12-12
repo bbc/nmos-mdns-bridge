@@ -64,7 +64,7 @@ class mDNSBridgeService(object):
         self.stop()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
 
     service = mDNSBridgeService()
     service.start()

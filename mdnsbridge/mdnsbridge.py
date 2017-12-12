@@ -18,7 +18,7 @@ import gevent
 import time
 from nmoscommon.webapi import *
 from nmoscommon.mdns import MDNSEngine
-# from ipppython.ifindex_utils import if_indextoname
+
 from flask import abort
 from nmoscommon import nmoscommonconfig
 
@@ -116,7 +116,7 @@ class mDNSBridge(object):
         self.mdns.stop()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": # pragma: no cover
     mdns = mDNSBridge()
     try:
         while True:
