@@ -22,3 +22,6 @@ clean:
 	dh_clean
 	rm -rf build/ MANIFEST
 	find . -name '*.pyc' -delete
+
+test:
+	$(PYTHON) -m unittest discover -s .

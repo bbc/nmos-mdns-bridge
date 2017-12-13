@@ -1,3 +1,11 @@
-.DS_Store
-*.swp
+.coverage
+build/
+debian/debhelper-build-stamp
+debian/files
+debian/*.log
+debian/*.debhelper
+debian/*.substvars
+debian/python-nmoscommon/
+nmoscommon.egg-info/
+*.py,cover
 *.pyc
