@@ -63,8 +63,17 @@ class mDNSBridge(object):
         self.mdns.start()
         self.services = {}
         self.domain = domain
+        self.timeout = 0
+        self._update_callback()
+
+    def _update_callback(self):
+        # Timeout is a workaround for the fact a unicast DNS query is only issued on startup
+        # This ensures we check if avahi's cache has expired regularly, and if so a new query will be issued
+        # In the worst case we'll breach the DNS record's TTL by the number of seconds set below
+        self.timeout = time.time() + 60
         for type in VALID_TYPES:
-            self.services[type] = [];
+            if type not in self.services:
+                self.services[type] = []
             self.mdns.callback_on_services("_" + type + "._tcp", self._mdns_callback, registerOnly=False, domain=self.domain)
 
     def _mdns_callback(self, data):
@@ -110,6 +119,8 @@ class mDNSBridge(object):
     def get_services(self, type):
         if type not in VALID_TYPES:
             return None
+        elif time.time() > self.timeout:
+            self._update_callback()
         return self.services[type]
 
     def stop(self):
