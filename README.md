@@ -1,4 +1,4 @@
-# NMOS MDNS Brigde
+# NMOS MDNS Bridge
 
 This API provides a zeroconf/HTTP bridge for NMOS service types. The API will present itself at [http://localhost:12352/x-ipstudio/mdnsbridge/v1.0/](http://localhost:12352/x-ipstudio/mdnsbridge/v1.0/).
 
