@@ -51,7 +51,7 @@ rm -rf %{buildroot}
 
 %files
 %{_bindir}/nmos-mdnsbridge
-%exclude tests/
+%exclude /tests/
 
 %{_unitdir}/python-mdnsbridge.service
 
