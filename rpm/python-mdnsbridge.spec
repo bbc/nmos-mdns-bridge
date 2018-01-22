@@ -55,6 +55,7 @@ rm -rf %{buildroot}
 %{_unitdir}/python-mdnsbridge.service
 
 %{python2_sitelib}/mdnsbridge
+%{python2_sitelib}/tests
 %{python2_sitelib}/nmosmdnsbridge-%{version}*.egg-info
 
 %defattr(-,ipstudio, ipstudio,-)
