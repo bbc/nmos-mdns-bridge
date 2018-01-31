@@ -74,7 +74,7 @@ packages_required = [
 
 deps_required = []
 
-test_requirements = ['mock']
+test_requirements = ['mock','systemd']
 
 setup(name = "nmosmdnsbridge",
       version = "0.1.0",

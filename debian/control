@@ -2,7 +2,7 @@ Source: python-mdnsbridge
 Maintainer: Peter Brightwell <peter.brightwell@bbc.co.uk>
 Section: python
 Priority: optional
-Build-Depends: python-all (>= 2.6.6-3), debhelper (>= 7), dh-python, python-setuptools, dh-systemd (>= 1.5), dh-python, python-mock
+Build-Depends: python-all (>= 2.6.6-3), debhelper (>= 7), dh-python, python-setuptools, dh-systemd (>= 1.5), dh-python, python-systemd, python-mock
 Standards-Version: 3.9.7
 
 Package: python-mdnsbridge
