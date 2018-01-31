@@ -14,7 +14,7 @@ BuildRequires:  nmoscommon
 BuildRequires:	systemd
 
 Requires:       python
-Requires:       nmos-reverse-proxy
+Requires:       nmosreverseproxy
 Requires:		nmoscommon
 %{?systemd_requires}
 
