@@ -35,7 +35,7 @@ mDNS to HTTP bridge service
 install -D -p -m 0644 debian/python-mdnsbridge.service %{buildroot}%{_unitdir}/python-mdnsbridge.service
 
 # Install Apache config file
-install -D -p -m 0644 etc/apache2/sites-available/nmos-api-mdnsbridge-v1_0.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/nmos-api-mdnsbridge-v1_0.conf
+install -D -p -m 0644 etc/apache2/sites-available/nmos-api-mdnsbridge-v1_0.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/ips-apis/nmos-api-mdnsbridge-v1_0.conf
 
 
 %post
@@ -60,7 +60,7 @@ rm -rf %{buildroot}
 %{python2_sitelib}/nmosmdnsbridge-%{version}*.egg-info
 
 %defattr(-,ipstudio, ipstudio,-)
-%config %{_sysconfdir}/httpd/conf.d/nmos-api-mdnsbridge-v1_0.conf
+%config %{_sysconfdir}/httpd/conf.d/ips-apis/nmos-api-mdnsbridge-v1_0.conf
 
 %changelog
 * Fri Nov 10 2017 Simon Rankine <Simon.Rankine@bbc.co.uk> - 0.1.0-2
