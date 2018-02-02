@@ -5,7 +5,8 @@ debian/files
 debian/*.log
 debian/*.debhelper
 debian/*.substvars
-debian/python-nmoscommon/
-nmoscommon.egg-info/
+debian/python-mdnsbridge/
+nmosmdnsbridge.egg-info/
 *.py,cover
 *.pyc
+virtpython
