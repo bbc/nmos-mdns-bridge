@@ -1,4 +1,4 @@
-Name: 			nmosmdnsbridge
+Name: 			python-mdnsbridge
 Version: 		0.1.0
 Release: 		1%{?dist}
 License: 		Internal Licence
@@ -14,7 +14,7 @@ BuildRequires:  nmoscommon
 BuildRequires:	systemd
 
 Requires:       python
-Requires:       nmosreverseproxy
+Requires:       ips-reverseproxy-common
 Requires:	nmoscommon
 Requires:       systemd-python
 %{?systemd_requires}
@@ -57,7 +57,7 @@ rm -rf %{buildroot}
 
 %{python2_sitelib}/mdnsbridge
 %{python2_sitelib}/tests
-%{python2_sitelib}/nmosmdnsbridge-%{version}*.egg-info
+%{python2_sitelib}/python_mdnsbridge-%{version}*.egg-info
 
 %defattr(-,ipstudio, ipstudio,-)
 %config %{_sysconfdir}/httpd/conf.d/ips-apis/nmos-api-mdnsbridge-v1_0.conf
