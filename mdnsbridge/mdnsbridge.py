@@ -74,7 +74,10 @@ class mDNSBridge(object):
         for type in VALID_TYPES:
             if type not in self.services:
                 self.services[type] = []
-            self.mdns.callback_on_services("_" + type + "._tcp", self._mdns_callback, registerOnly=False, domain=self.domain)
+            try:
+                self.mdns.callback_on_services("_" + type + "._tcp", self._mdns_callback, registerOnly=False, domain=self.domain)
+            except Exception:
+                pass # This is a workaround for now. Need a mechanism to remove callbacks before adding more
 
     def _mdns_callback(self, data):
         srv_type = data["type"][1:].split(".")[0]
