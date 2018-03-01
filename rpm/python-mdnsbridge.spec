@@ -10,7 +10,6 @@ BuildArch:      noarch
 
 BuildRequires:	python2-devel
 BuildRequires:  python-setuptools
-BuildRequires:  nmoscommon
 BuildRequires:	systemd
 
 Requires:       python
