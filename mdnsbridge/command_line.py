@@ -5,7 +5,7 @@ import gevent.monkey
 import json
 gevent.monkey.patch_all()
 
-from mdnsbridge.mdnsbridgeservice import mDNSBridgeService
+from mdnsbridgeservice import mDNSBridgeService
 
 def load_config():
     extra_config = dict()
@@ -18,7 +18,7 @@ def load_config():
         print "Exception loading config: {}".format(e)
     return extra_config
 
-if __name__ == "__main__":
+def main():
     cfg = load_config()
     if 'domain' in cfg:
         domain = cfg['domain']

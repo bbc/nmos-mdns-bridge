@@ -62,11 +62,9 @@ setup(name = "python-mdnsbridge",
       packages = package_names,
       package_dir = packages,
       install_requires = packages_required,
-      scripts = [
-                ],
-      data_files=[
-          ('/usr/bin', ['bin/nmos-mdnsbridge'])
-                 ],
+      entry_points = {
+        'console_scripts': ['nmos-mdnsbridge=mdnsbridge.command_line:main']
+      },
       long_description = """
       This API provides a zeroconf/HTTP bridge for NMOS service types
 """
