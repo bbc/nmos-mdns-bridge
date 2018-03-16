@@ -1,6 +1,5 @@
 PYTHON=`which python`
 DESTDIR=/
-PROJECT=python-mdnsbridge
 
 all:
 	@echo "make source - Create source package"
@@ -21,11 +20,12 @@ clean:
 	$(PYTHON) setup.py clean
 	dh_clean
 	rm -rf build/ MANIFEST
+	rm -rf dist/
 	rm -rf tox-generated.ini
 	rm -rf .tox
+	rm -rf *.egg-info
 	find . -name '*.pyc' -delete
 	find . -name '*.py,cover' -delete
-	rm -rf $(VENV)
 
 test:
 	tox
