@@ -70,6 +70,10 @@ packages = find_packages(".")
 package_names = packages.keys()
 
 packages_required = [
+    "nmoscommon",
+    "systemd",
+    "gevent",
+    "flask"
 ]
 
 deps_required = []
