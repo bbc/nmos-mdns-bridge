@@ -78,8 +78,6 @@ packages_required = [
 
 deps_required = []
 
-test_requirements = ['mock','systemd']
-
 setup(name = "python-mdnsbridge",
       version = "0.1.0",
       description = "nmos mdns bridge",
@@ -90,7 +88,6 @@ setup(name = "python-mdnsbridge",
       packages = package_names,
       package_dir = packages,
       install_requires = packages_required,
-      tests_require = test_requirements,
       scripts = [
                 ],
       data_files=[
