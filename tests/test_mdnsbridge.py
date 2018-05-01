@@ -14,74 +14,103 @@
 
 import unittest
 import mock
+import json
 
-def route_decorator(path):
-    def decorate_function(f):
-        f.mock_path = path
-        return f
-    return decorate_function
+from mdnsbridge.mdnsbridge import *
+
 
 class StubWebAPI(object):
     pass
+
 
 class AbortException(Exception):
     def __init__(self, code, *args, **kwargs):
         self.code = code
         super(AbortException, self).__init__(*args, **kwargs)
 
-with mock.patch('nmoscommon.webapi.WebAPI', StubWebAPI):
-    with mock.patch('nmoscommon.webapi.route', side_effect=route_decorator) as route:
-        from mdnsbridge.mdnsbridge import *
 
 class TestmDNSBridgeAPI(unittest.TestCase):
+
     def setUp(self):
-        self.mdns = mock.MagicMock(name="mdns")
-        self.mdns.get_services.side_effect = lambda path : getattr(self.mdns.get_services, path)
-        self.UUT = mDNSBridgeAPI(self.mdns)
+        self.APIBASE = "/{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION)
+        self.mock_mdns_get_services()
+        # Expse Werkzeug test client to test API
+        flaskr = mDNSBridgeAPI(self.mdns)
+        flaskr.app.config['TESTING'] = True
+        self.client = flaskr.app.test_client()
 
-    def test_init(self):
-        self.assertItemsEqual(route.mock_calls,
-                                  [mock.call('/'),
-                                   mock.call("/{}/".format(APINAMESPACE)),
-                                   mock.call("/{}/{}/".format(APINAMESPACE, APINAME)),
-                                   mock.call('/{}/{}/{}/'.format(APINAMESPACE, APINAME, APIVERSION)),
-                                   mock.call('/{}/{}/{}/<path>/'.format(APINAMESPACE, APINAME, APIVERSION))])
+    def mock_mdns_get_services(self):
+        self.mdns = mock.MagicMock()
+        # the mock mdns needs to mock the get_services method
+        # make it reflect what it is passed
 
-    def assert_method_has_path_and_returns(self, method, path, expected, args=[], kwargs={}):
-        """This method is a fixture to check a method of mDNSBridgeAPI has the right path associated to it, and gives the right return value when called. The expected param can either be the expected return, or the expected exception to be raised."""
-        self.assertEqual(getattr(self.UUT, method).mock_path, path, msg="method {} was inserted into the webapi with the incorrect path: {}, when expected {}".format(method, getattr(self.UUT, method).mock_path, path))
+        def behaviour(passedValue):
+            return passedValue
+        self.mdns.get_services = behaviour
 
-        def raise_on_abort(code):
-            raise AbortException(code)
-
-        with mock.patch('mdnsbridge.mdnsbridge.abort', side_effect=raise_on_abort):
-            try:
-                rval = getattr(self.UUT,method)(*args, **kwargs)
-            except AbortException as e:
-                self.assertIsInstance(expected, AbortException, msg="Got an abort with code {} when expecting a clean return, whilst calling {} with arguments: {}".format(e.code, method, repr(args)))
-                self.assertEqual(e.code, expected.code, msg="Got an abort with code {} when expecting an abort with {} whilst calling {} with arguments {}".format(e.code, expected.code, method, repr(args)))
-            else:
-                self.assertEqual(rval, expected, msg="method {} returned: {}, when expected {}".format(method, repr(rval), repr(expected)))
+    def inspect_endpoint(self, path, expected, resourceName):
+        # Get reponse from test client, compare to expected
+        rv = self.client.get(path)
+        actual = json.loads(rv.data)
+        message = ("{} resource at '/' should return "
+                   "{}, got {}").format(resourceName, expected, actual)
+        self.assertEqual(actual, expected, msg=message)
 
     def test_namespace_resource(self):
-        self.assert_method_has_path_and_returns('namespace_resource', '/', [APINAMESPACE + '/'])
+        self.inspect_endpoint(
+            path='/',
+            expected=[APINAMESPACE + '/'],
+            resourceName="Namespace"
+        )
 
-    def test_name_resource(self):
-        self.assert_method_has_path_and_returns('name_resource', "/{}/".format(APINAMESPACE), [APINAME + '/'])
+    def test_apinamespace_resource(self):
+        self.inspect_endpoint(
+            path='/{}/'.format(APINAMESPACE),
+            expected=[APINAME + '/'],
+            resourceName="API Namespace"
+        )
 
     def test_version_resource(self):
-        self.assert_method_has_path_and_returns('version_resource', "/{}/{}/".format(APINAMESPACE, APINAME), [APIVERSION + '/'])
+        myPath = '/{}/{}/'.format(APINAMESPACE,APINAME)
+        self.inspect_endpoint(
+            path=myPath,
+            expected=[APIVERSION + '/'],
+            resourceName="Version"
+        )
 
     def test_base_resource(self):
-        self.assert_method_has_path_and_returns('base_resource', "/{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION), {"resources": [value + "/" for value in VALID_TYPES]})
+        myExpected = {
+            "resources": [
+                "nmos-query/",
+                "nmos-registration/"
+            ]
+        }
+        self.inspect_endpoint(
+            path=self.APIBASE,
+            expected=myExpected,
+            resourceName="Base"
+        )
 
     def test_type_resource(self):
-        for path in VALID_TYPES:
-            self.assert_method_has_path_and_returns('type_resource', "/{}/{}/{}/<path>/".format(APINAMESPACE, APINAME, APIVERSION), {"representation": getattr(self.mdns.get_services,path)}, args=[path,])
+        myExpected = {
+            "representation": "nmos-query"
+        }
+        myPath = self.APIBASE + "nmos-query/"
+        self.inspect_endpoint(
+            path=myPath,
+            expected=myExpected,
+            resourceName="Base"
+        )
 
-        INVALID_TYPES = [ "potato", ]
-        for path in INVALID_TYPES:
-            self.assert_method_has_path_and_returns('type_resource', "/{}/{}/{}/<path>/".format(APINAMESPACE, APINAME, APIVERSION), AbortException(404), args=[path,])
+    def test_invalid_types(self):
+        myPath = self.APIBASE + "potato/"
+        rv = self.client.get(myPath)
+        expected = 404
+        actual = rv.status_code
+        message = ("Type resource should result in a 404 for invalid"
+                   "type 'potato', but resulted  in {}").format(actual)
+        self.assertEqual(expected, actual, msg=message)
+
 
 class TestmDNSBridge(unittest.TestCase):
     @mock.patch('mdnsbridge.mdnsbridge.MDNSEngine')

@@ -77,7 +77,7 @@ deps_required = []
 test_requirements = ['mock','systemd']
 
 setup(name = "python-mdnsbridge",
-      version = "0.1.0",
+      version = "0.3.1",
       description = "nmos mdns bridge",
       url='www.nmos.tv',
       author='Peter Brightell',
