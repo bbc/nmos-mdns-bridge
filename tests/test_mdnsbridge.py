@@ -37,8 +37,7 @@ class TestmDNSBridgeAPI(unittest.TestCase):
         # Expse Werkzeug test client to test API
         flaskr = mDNSBridgeAPI(self.mdns)
         flaskr.app.config['TESTING'] = True
-        client = flaskr.app.test_client()
-        self.client = client
+        self.client = flaskr.app.test_client()
 
     def mock_mdns_get_services(self):
         self.mdns = mock.MagicMock()
@@ -102,6 +101,15 @@ class TestmDNSBridgeAPI(unittest.TestCase):
             expected=myExpected,
             resourceName="Base"
         )
+
+    def test_invalid_types(self):
+        myPath = self.APIBASE + "potato/"
+        rv = self.client.get(myPath)
+        expected = 404
+        actual = rv.status_code
+        message = ("Type resource should result in a 404 for invalid"
+                   "type 'potato', but resulted  in {}").format(actual)
+        self.assertEqual(expected, actual, msg=message)
 
 
 class TestmDNSBridge(unittest.TestCase):
