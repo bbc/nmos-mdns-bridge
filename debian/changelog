@@ -6,4 +6,4 @@ python-mdnsbridge (0.3.1) UNRELEASED; urgency=low
   [ Simon Rankine ]
   * Removed indeterminate tests that sometimes break build
 
- -- Simon Rankine <simonra@ap-z420-6.rd.bbc.co.uk>  Tue, 01 May 2018 11:36:17 +0100
+ -- Simon Rankine <simon.rankine@bbc.co.uk>  Tue, 01 May 2018 11:36:17 +0100
