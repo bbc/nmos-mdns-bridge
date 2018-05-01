@@ -1,5 +1,9 @@
-python-mdnsbridge (0.3.0) UNRELEASED; urgency=low
+python-mdnsbridge (0.3.1) UNRELEASED; urgency=low
 
+  [ Peter Brightwell ]
   * Initial Release
 
- -- Peter Brightwell <peter.brightwell@bbc.co.uk>  Thu, 06 Apr 2017 10:36:07 +0100
+  [ Simon Rankine ]
+  * Removed indeterminate tests that sometimes break build
+
+ -- Simon Rankine <simonra@ap-z420-6.rd.bbc.co.uk>  Tue, 01 May 2018 11:36:17 +0100
