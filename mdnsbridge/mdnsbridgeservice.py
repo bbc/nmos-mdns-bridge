@@ -28,13 +28,13 @@ class mDNSBridgeService(object):
         self.http_server = HttpServer(mDNSBridgeAPI, PORT, HOST, api_args=[self.mdns_bridge])
         self.http_server.start()
         while not self.http_server.started.is_set():
-            print "Waiting for httpserver to start..."
+            print("Waiting for httpserver to start...")
             self.http_server.started.wait()
 
         if self.http_server.failed is not None:
             raise self.http_server.failed
 
-        print "Running on port: {}".format(self.http_server.port)
+        print("Running on port: {}".format(self.http_server.port))
 
     def run(self):
         self.running = True
@@ -57,10 +57,10 @@ class mDNSBridgeService(object):
     def _cleanup(self):
         self.http_server.stop()
         self.mdns_bridge.stop()
-        print "Stopped main()"
+        print("Stopped main()")
 
     def sig_handler(self):
-        print "Pressed ctrl+c"
+        print("Pressed ctrl+c")
         self.stop()
 
 

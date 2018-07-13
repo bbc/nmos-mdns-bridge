@@ -48,13 +48,13 @@ package_names = packages.keys()
 
 packages_required = [
     "gevent>=1.2.2",
-    "nmoscommon>=0.6.0",
+    "nmoscommon",
     "flask>=0.10.1",
-    "systemd>=229"
+    "systemd"
 ]
 
 setup(name="mdnsbridge",
-      version="0.3.1",
+      version="0.3.2",
       description="nmos mdns bridge",
       url='www.nmos.tv',
       author='Peter Brightwell',
