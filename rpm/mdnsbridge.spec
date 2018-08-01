@@ -1,10 +1,12 @@
-Name: 			python-mdnsbridge
-Version: 		0.3.1
+%global module_name mdnsbridge
+
+Name: 			python-%{module_name}
+Version: 		0.3.2
 Release: 		1%{?dist}
 License: 		Internal Licence
 Summary: 		mDNS to HTTP bridge service
 
-Source0: 		%{name}-%{version}.tar.gz
+Source0: 		%{module_name}-%{version}.tar.gz
 Source1:		ips-api-mdnsbridge.conf
 Source2:		python-mdnsbridge.service
 
@@ -24,7 +26,7 @@ Requires:       systemd-python
 mDNS to HTTP bridge service
 
 %prep
-%setup -n %{name}-%{version}
+%setup -n %{module_name}-%{version}
 
 %build
 %{py2_build}
