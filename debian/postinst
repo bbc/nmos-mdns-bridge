@@ -23,7 +23,6 @@ fi
 
 case "$1" in
     configure)
-        service apache2 reload || true
 	;;
 
 
