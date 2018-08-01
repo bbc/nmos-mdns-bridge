@@ -5,6 +5,8 @@ License: 		Internal Licence
 Summary: 		mDNS to HTTP bridge service
 
 Source0: 		%{name}-%{version}.tar.gz
+Source1:		ips-api-mdnsbridge.conf
+Source2:		python-mdnsbridge.service
 
 BuildArch:      noarch
 
@@ -31,10 +33,10 @@ mDNS to HTTP bridge service
 %{py2_install}
 
 # Install systemd unit file
-install -D -p -m 0644 debian/python-mdnsbridge.service %{buildroot}%{_unitdir}/python-mdnsbridge.service
+install -D -p -m 0644 %{SOURCE2} %{buildroot}%{_unitdir}/python-mdnsbridge.service
 
 # Install Apache config file
-install -D -p -m 0644 etc/apache2/sites-available/nmos-api-mdnsbridge-v1_0.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/ips-apis/nmos-api-mdnsbridge-v1_0.conf
+install -D -p -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/httpd/conf.d/ips-apis/nmos-api-mdnsbridge-v1_0.conf
 
 
 %post
