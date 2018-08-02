@@ -56,11 +56,10 @@ rm -rf %{buildroot}
 %files
 %{_bindir}/nmos-mdnsbridge
 
-%{_unitdir}/python-mdnsbridge.service
+%{_unitdir}/%{name}.service
 
-%{python2_sitelib}/mdnsbridge
-%{python2_sitelib}/tests
-%{python2_sitelib}/python_mdnsbridge-%{version}*.egg-info
+%{python2_sitelib}/%{module_name}
+%{python2_sitelib}/%{module_name}-%{version}*.egg-info
 
 %defattr(-,ipstudio, ipstudio,-)
 %config %{_sysconfdir}/httpd/conf.d/ips-apis/nmos-api-mdnsbridge-v1_0.conf
