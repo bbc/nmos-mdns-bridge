@@ -54,7 +54,7 @@ packages_required = [
 ]
 
 setup(name="mdnsbridge",
-      version="0.3.2",
+      version="0.3.3",
       description="nmos mdns bridge",
       url='www.nmos.tv',
       author='Peter Brightwell',

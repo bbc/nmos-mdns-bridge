@@ -1,10 +1,14 @@
-Name: 			python-mdnsbridge
-Version: 		0.3.1
+%global module_name mdnsbridge
+
+Name: 			python-%{module_name}
+Version: 		0.3.3
 Release: 		1%{?dist}
 License: 		Internal Licence
 Summary: 		mDNS to HTTP bridge service
 
-Source0: 		%{name}-%{version}.tar.gz
+Source0: 		%{module_name}-%{version}.tar.gz
+Source1:		ips-api-mdnsbridge.conf
+Source2:		python-mdnsbridge.service
 
 BuildArch:      noarch
 
@@ -22,7 +26,7 @@ Requires:       systemd-python
 mDNS to HTTP bridge service
 
 %prep
-%setup -n %{name}-%{version}
+%setup -n %{module_name}-%{version}
 
 %build
 %{py2_build}
@@ -31,10 +35,10 @@ mDNS to HTTP bridge service
 %{py2_install}
 
 # Install systemd unit file
-install -D -p -m 0644 debian/python-mdnsbridge.service %{buildroot}%{_unitdir}/python-mdnsbridge.service
+install -D -p -m 0644 %{SOURCE2} %{buildroot}%{_unitdir}/python-mdnsbridge.service
 
 # Install Apache config file
-install -D -p -m 0644 etc/apache2/sites-available/nmos-api-mdnsbridge-v1_0.conf %{buildroot}%{_sysconfdir}/httpd/conf.d/ips-apis/nmos-api-mdnsbridge-v1_0.conf
+install -D -p -m 0644 %{SOURCE1} %{buildroot}%{_sysconfdir}/httpd/conf.d/ips-apis/nmos-api-mdnsbridge-v1_0.conf
 
 
 %post
@@ -52,11 +56,10 @@ rm -rf %{buildroot}
 %files
 %{_bindir}/nmos-mdnsbridge
 
-%{_unitdir}/python-mdnsbridge.service
+%{_unitdir}/%{name}.service
 
-%{python2_sitelib}/mdnsbridge
-%{python2_sitelib}/tests
-%{python2_sitelib}/python_mdnsbridge-%{version}*.egg-info
+%{python2_sitelib}/%{module_name}
+%{python2_sitelib}/%{module_name}-%{version}*.egg-info
 
 %defattr(-,ipstudio, ipstudio,-)
 %config %{_sysconfdir}/httpd/conf.d/ips-apis/nmos-api-mdnsbridge-v1_0.conf
