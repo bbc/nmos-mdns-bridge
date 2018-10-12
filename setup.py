@@ -56,8 +56,8 @@ packages_required = [
 
 setup(name="mdnsbridge",
       version="0.3.5",
-      description="nmos mdns bridge",
-      url='www.nmos.tv',
+      description="An API providing a DNS-SD/HTTP bridge for AMWA NMOS service types",
+      url='https://github.com/bbc/nmos-mdns-bridge',
       author='Peter Brightwell',
       author_email='peter.brightwell@bbc.co.uk',
       license='Apache 2',
@@ -68,5 +68,5 @@ setup(name="mdnsbridge",
       data_files=[
         ('/usr/bin', ['bin/nmos-mdnsbridge'])
       ],
-      long_description="This API provides a zeroconf/HTTP bridge for NMOS service types"
+      long_description="This API provides a DNS-SD/HTTP bridge for NMOS service types"
       )
