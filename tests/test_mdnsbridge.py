@@ -82,7 +82,8 @@ class TestmDNSBridgeAPI(unittest.TestCase):
         myExpected = {
             "resources": [
                 "nmos-query/",
-                "nmos-registration/"
+                "nmos-registration/",
+                "nmos-security/"
             ]
         }
         self.inspect_endpoint(
