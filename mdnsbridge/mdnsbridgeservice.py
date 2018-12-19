@@ -12,6 +12,7 @@ monkey.patch_all()
 HOST = "127.0.0.1"
 PORT = 12352
 
+
 class mDNSBridgeService(object):
     def __init__(self, domain=None):
         self.running = False
@@ -45,7 +46,7 @@ class mDNSBridgeService(object):
         while self.running:
             itercount += 1
             gevent.sleep(1)
-            if itercount == 5: #5 seconds
+            if itercount == 5:  # 5 seconds
                 self.facade.heartbeat_service()
                 itercount = 0
         self.facade.unregister_service()
@@ -64,7 +65,7 @@ class mDNSBridgeService(object):
         self.stop()
 
 
-if __name__ == "__main__": # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
 
     service = mDNSBridgeService()
     service.start()

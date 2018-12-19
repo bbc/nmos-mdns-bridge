@@ -54,6 +54,11 @@ packages_required = [
     "systemd"
 ]
 
+# The following are included only as the package fails to download from pip
+deps_required = [
+    "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/pybonjour/pybonjour-1.1.1.tar.gz#egg=pybonjour-1.1.1"  # NOQA: E501
+]
+
 setup(name="mdnsbridge",
       version="0.3.5",
       description="An API providing a DNS-SD/HTTP bridge for AMWA NMOS service types",
@@ -64,6 +69,7 @@ setup(name="mdnsbridge",
       packages=package_names,
       package_dir=packages,
       install_requires=packages_required,
+      dependency_links=deps_required,
       scripts=[],
       data_files=[
         ('/usr/bin', ['bin/nmos-mdnsbridge'])
