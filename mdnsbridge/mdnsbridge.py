@@ -16,18 +16,19 @@
 
 import gevent
 import time
-from nmoscommon.webapi import *
+from nmoscommon.webapi import WebAPI, route
 from nmoscommon.mdns import MDNSEngine
 
 from flask import abort
 from nmoscommon import nmoscommonconfig
 
-VALID_TYPES = ["nmos-query", "nmos-registration"]
+VALID_TYPES = ["nmos-query", "nmos-registration", "nmos-security"]
 
 APINAMESPACE = "x-ipstudio"
 APINAME = "mdnsbridge"
 APIVERSION = "v1.0"
 APIBASE = "/{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION)
+
 
 class mDNSBridgeAPI(WebAPI):
     def __init__(self, mdns):
@@ -77,7 +78,7 @@ class mDNSBridge(object):
             try:
                 self.mdns.callback_on_services("_" + type + "._tcp", self._mdns_callback, registerOnly=False, domain=self.domain)
             except Exception:
-                pass # This is a workaround for now. Need a mechanism to remove callbacks before adding more
+                pass  # This is a workaround for now. Need a mechanism to remove callbacks before adding more
 
     def _mdns_callback(self, data):
         srv_type = data["type"][1:].split(".")[0]
@@ -100,18 +101,18 @@ class mDNSBridge(object):
                 if service["name"] == data["name"] and service["address"] == data["address"]:
                     service.update(service_entry)
                     return
-            if nmoscommonconfig.config.get('prefer_ipv6',False) == False:
+            if nmoscommonconfig.config.get('prefer_ipv6', False) is False:
                 if ":" not in data["address"]:
                     self.services[srv_type].append(service_entry)
             else:
                 if not data["address"].startswith("fe80::") and "." not in data["address"]:
                     self.services[srv_type].append(service_entry)
-            #TODO: Due to issues with python requests library, IPv6 link local addresses are not compatable with requests.request().
-            #Therefore, IPv6 Global addresses must be used for nodes to register with pipeline manager through ipppython aggregator.py
-            #Below code will allow link-local addresses to be used if requests bug is fixed
-            #else:
-                #service_entry["address"] = str(data["address"])+str("%%")+str(if_indextoname(data["interface"]))
-                #self.services[srv_type].append(service_entry)
+            # TODO: Due to issues with python requests library, IPv6 link local addresses are not compatable with requests.request().
+            # Therefore, IPv6 Global addresses must be used for nodes to register with pipeline manager through ipppython aggregator.py
+            # Below code will allow link-local addresses to be used if requests bug is fixed
+            # else:
+            #     service_entry["address"] = str(data["address"])+str("%%")+str(if_indextoname(data["interface"]))
+            #     self.services[srv_type].append(service_entry)
 
         elif data["action"] == "remove":
             for service in self.services[srv_type]:
@@ -130,12 +131,12 @@ class mDNSBridge(object):
         self.mdns.stop()
 
 
-if __name__ == "__main__": # pragma: no cover
+if __name__ == "__main__":  # pragma: no cover
     mdns = mDNSBridge()
     try:
         while True:
-            print "*** mDNS ***"
-            print mdns.get_services("nmos-query"), "\n"
+            print("*** mDNS ***")
+            print(mdns.get_services("nmos-query"), "\n")
             gevent.sleep(1)
     except:
         mdns.stop()

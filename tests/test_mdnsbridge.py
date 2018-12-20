@@ -16,7 +16,7 @@ import unittest
 import mock
 import json
 
-from mdnsbridge.mdnsbridge import *
+from mdnsbridge.mdnsbridge import VALID_TYPES, APINAMESPACE, APINAME, APIVERSION, mDNSBridgeAPI, mDNSBridge
 
 
 class StubWebAPI(object):
@@ -71,7 +71,7 @@ class TestmDNSBridgeAPI(unittest.TestCase):
         )
 
     def test_version_resource(self):
-        myPath = '/{}/{}/'.format(APINAMESPACE,APINAME)
+        myPath = '/{}/{}/'.format(APINAMESPACE, APINAME)
         self.inspect_endpoint(
             path=myPath,
             expected=[APIVERSION + '/'],
@@ -82,7 +82,8 @@ class TestmDNSBridgeAPI(unittest.TestCase):
         myExpected = {
             "resources": [
                 "nmos-query/",
-                "nmos-registration/"
+                "nmos-registration/",
+                "nmos-security/"
             ]
         }
         self.inspect_endpoint(
@@ -117,29 +118,28 @@ class TestmDNSBridge(unittest.TestCase):
     def setUp(self, MDNSEngine):
         self.UUT = mDNSBridge(domain=mock.sentinel.domain)
         self.assertItemsEqual(MDNSEngine.return_value.callback_on_services.mock_calls,
-                                      [ mock.call("_" + type + "._tcp", mock.ANY, registerOnly=False, domain=mock.sentinel.domain) for type in VALID_TYPES ])
-        self.callbacks = { regtype.split('.')[0][1:] : f for (regtype, f) in ( call[1] for call in MDNSEngine.return_value.callback_on_services.mock_calls ) }
+                              [mock.call("_" + type + "._tcp", mock.ANY, registerOnly=False, domain=mock.sentinel.domain) for type in VALID_TYPES])
+        self.callbacks = {regtype.split('.')[0][1:]: f for (regtype, f) in (call[1] for call in MDNSEngine.return_value.callback_on_services.mock_calls)}
 
-    def assert_registered_callback_correctly_handles_data_from_mdns(self, type, action, name, address=None, prefer_ipv6 = False, expect_no_add=False, priority=100):
+    def assert_registered_callback_correctly_handles_data_from_mdns(self, type, action, name, address=None, prefer_ipv6=False, expect_no_add=False, priority=100):
         expected = {'protocol': 'http',
                     'name': name,
                     'versions': ['v1.0', 'v1.1', 'v1.2'],
                     'priority': priority,
                     'address': address,
                     'txt': {'api_ver': 'v1.0,v1.1,v1.2', 'api_proto': 'http', 'pri': str(priority)},
-                    'port': mock.sentinel.port }
-        with mock.patch('nmoscommon.nmoscommonconfig.config', { 'prefer_ipv6' : prefer_ipv6 }):
-            self.callbacks[type]({"type"   : "_" + type + "._tcp",
-                                "action" : action,
-                                "txt"    : { "pri" : str(priority), "api_ver" : "v1.0,v1.1,v1.2", "api_proto" : "http" },
-                                "name"   : name,
-                                "address": address,
-                                "port"   : mock.sentinel.port,})
+                    'port': mock.sentinel.port}
+        with mock.patch('nmoscommon.nmoscommonconfig.config', {'prefer_ipv6': prefer_ipv6}):
+            self.callbacks[type]({"type": "_" + type + "._tcp",
+                                  "action": action,
+                                  "txt": {"pri": str(priority), "api_ver": "v1.0,v1.1,v1.2", "api_proto": "http"},
+                                  "name": name,
+                                  "address": address,
+                                  "port": mock.sentinel.port, })
         if action == "add" and not expect_no_add:
             self.assertIn(expected, self.UUT.get_services(type))
         else:
-            self.assertListEqual([ entry for entry in self.UUT.get_services(type) if entry["name"] == name ], [])
-
+            self.assertListEqual([entry for entry in self.UUT.get_services(type) if entry["name"] == name], [])
 
     def test_nmos_query_callback_add_ipv4_on_ipv4_system(self):
         """Should add the given resource to the local store."""
@@ -164,7 +164,7 @@ class TestmDNSBridge(unittest.TestCase):
 
     def test_nmos_query_callback_can_remove_after_adding(self):
         """Should add the given resource to the local store and then remove it again."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-query', "add",    mock.sentinel.name, "192.168.0.1")
+        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-query', "add", mock.sentinel.name, "192.168.0.1")
         self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-query', "remove", mock.sentinel.name)
 
     def test_nmos_registration_callback_add_ipv4_on_ipv4_system(self):
@@ -185,7 +185,7 @@ class TestmDNSBridge(unittest.TestCase):
 
     def test_nmos_registration_callback_can_remove_after_adding(self):
         """Should add the given resource to the local store and then remove it again."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-registration', "add",    mock.sentinel.name, "192.168.0.1")
+        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-registration', "add", mock.sentinel.name, "192.168.0.1")
         self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-registration', "remove", mock.sentinel.name)
 
     def test_get_service_fails_with_invalid_type(self):

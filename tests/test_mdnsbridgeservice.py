@@ -14,9 +14,12 @@
 
 import unittest
 import mock
+from gevent import signal
 
 with mock.patch("mdnsbridge.mdnsbridgeservice.monkey"):
-    from mdnsbridge.mdnsbridgeservice import *
+    from mdnsbridge.mdnsbridgeservice import HOST, PORT, mDNSBridgeService
+    from mdnsbridge.mdnsbridge import mDNSBridgeAPI, APINAME, APINAMESPACE, APIVERSION
+
 
 class TestmDNSBridgeService(unittest.TestCase):
     @mock.patch('mdnsbridge.mdnsbridgeservice.Facade')
@@ -29,13 +32,14 @@ class TestmDNSBridgeService(unittest.TestCase):
     @mock.patch('gevent.sleep')
     @mock.patch('mdnsbridge.mdnsbridgeservice.mDNSBridge')
     @mock.patch('mdnsbridge.mdnsbridgeservice.HttpServer')
-    @mock.patch('mdnsbridge.mdnsbridgeservice.daemon')        
+    @mock.patch('mdnsbridge.mdnsbridgeservice.daemon')
     def assert_run_starts_runs_and_stops_as_expected(self, n, daemon, HttpServer, mDNSBridge, sleep, gevent_signal, http_server_fails_with_exception=None):
-        HttpServer.return_value.started.is_set.side_effect = [ False, False, False, True ]
+        HttpServer.return_value.started.is_set.side_effect = [False, False, False, True]
         HttpServer.return_value.failed = http_server_fails_with_exception
 
-        responses = [ None for _ in range(0,n) ]
-        _responses = [ x for x in responses ]
+        responses = [None for _ in range(0, n)]
+        _responses = [x for x in responses]
+
         def sleep_then_kill(t):
             if len(_responses) > 0:
                 return _responses.pop(0)
@@ -50,17 +54,16 @@ class TestmDNSBridgeService(unittest.TestCase):
         else:
             with self.assertRaises(http_server_fails_with_exception):
                 self.UUT.run()
-        
 
-        self.assertItemsEqual(gevent_signal.mock_calls, [ mock.call(signal.SIGINT,  mock.ANY ),
-                                                            mock.call(signal.SIGTERM, mock.ANY ) ])
+        self.assertItemsEqual(gevent_signal.mock_calls, [mock.call(signal.SIGINT, mock.ANY),
+                                                         mock.call(signal.SIGTERM, mock.ANY)])
 
-        self.handlers = { sig : handler for (sig, handler) in ( call[1] for call in gevent_signal.mock_calls ) }
+        self.handlers = {sig: handler for (sig, handler) in (call[1] for call in gevent_signal.mock_calls)}
 
         mDNSBridge.assert_called_once_with(domain=mock.sentinel.domain)
         HttpServer.assert_called_once_with(mDNSBridgeAPI, PORT, HOST, api_args=[mDNSBridge.return_value])
         HttpServer.return_value.start.assert_called_once_with()
-        self.assertListEqual(HttpServer.return_value.started.wait.mock_calls, [ mock.call() for _ in range(0,3) ])
+        self.assertListEqual(HttpServer.return_value.started.wait.mock_calls, [mock.call() for _ in range(0,3)])
 
         if http_server_fails_with_exception is not None:
             self.UUT.facade.register_service.assert_not_called()
