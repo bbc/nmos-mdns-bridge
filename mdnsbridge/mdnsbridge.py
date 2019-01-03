@@ -15,7 +15,6 @@
 # limitations under the License.
 
 import gevent
-import time
 from nmoscommon.webapi import WebAPI, route
 from nmoscommon.mdns import MDNSEngine
 
@@ -64,9 +63,9 @@ class mDNSBridge(object):
         self.mdns.start()
         self.services = {}
         self.domain = domain
-        for type in VALID_TYPES:
-            self.services[type] = []
-            self.mdns.callback_on_services("_" + type + "._tcp", self._mdns_callback, registerOnly=False, domain=self.domain)
+        for srv_type in VALID_TYPES:
+            self.services[srv_type] = []
+            self.mdns.callback_on_services("_" + srv_type + "._tcp", self._mdns_callback, registerOnly=False, domain=self.domain)
 
     def _mdns_callback(self, data):
         srv_type = data["type"][1:].split(".")[0]
@@ -108,10 +107,10 @@ class mDNSBridge(object):
                     self.services[srv_type].remove(service)
                     break
 
-    def get_services(self, type):
-        if type not in VALID_TYPES:
+    def get_services(self, srv_type):
+        if srv_type not in VALID_TYPES:
             return None
-        return self.services[type]
+        return self.services[srv_type]
 
     def stop(self):
         self.mdns.stop()
