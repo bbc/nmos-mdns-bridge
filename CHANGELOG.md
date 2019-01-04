@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.5.2
+- Fix read from incorrect config file
+
 ## 0.5.1
 - Remove periodic re-query for unicast DNS which is no longer required
 

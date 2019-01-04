@@ -10,7 +10,7 @@ from mdnsbridge.mdnsbridgeservice import mDNSBridgeService
 def load_config():
     extra_config = dict()
     try:
-        config_file = "/etc/ipppython/config.json"
+        config_file = "/etc/nmoscommon/config.json"
         if os.path.isfile(config_file):
             f = open(config_file, 'r')
             extra_config = json.loads(f.read())
