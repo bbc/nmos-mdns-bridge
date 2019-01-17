@@ -82,7 +82,7 @@ class mDNSBridge(object):
                 protocol = data["txt"]["api_proto"]
             service_entry = {
                 "name": data["name"], "address": data["address"], "port": data["port"], "txt": data["txt"],
-                "priority": priority, "versions": versions, "protocol": protocol, "hostname": hostname
+                "priority": priority, "versions": versions, "protocol": protocol, "hostname": data["hostname"]
             }
             for service in self.services[srv_type]:
                 if service["name"] == data["name"] and service["address"] == data["address"]:
