@@ -49,13 +49,13 @@ package_names = packages.keys()
 # REMEMBER: If this list is updated, please also update stdeb.cfg and the RPM specfile
 packages_required = [
     "gevent>=1.2.2",
-    "nmoscommon",
+    "nmoscommon>=0.12.0",
     "flask>=0.10.1",
     "systemd"
 ]
 
 setup(name="mdnsbridge",
-      version="0.5.2",
+      version="0.6.0",
       description="An API providing a DNS-SD/HTTP bridge for AMWA NMOS service types",
       url='https://github.com/bbc/nmos-mdns-bridge',
       author='Peter Brightwell',

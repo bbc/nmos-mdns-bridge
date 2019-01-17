@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.6.0
+- Add ability to surface hostnames in the API
+
 ## 0.5.2
 - Fix read from incorrect config file
 
