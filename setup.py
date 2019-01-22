@@ -17,8 +17,6 @@
 from __future__ import print_function
 from setuptools import setup
 import os
-import sys
-import json
 
 
 def is_package(path):
