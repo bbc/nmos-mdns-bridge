@@ -52,7 +52,6 @@ class mDNSBridgeService(object):
         self._cleanup()
 
     def stop(self):
-        self._cleanup()
         self.running = False
 
     def _cleanup(self):

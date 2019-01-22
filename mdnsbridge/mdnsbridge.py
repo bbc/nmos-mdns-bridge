@@ -134,8 +134,8 @@ if __name__ == "__main__": # pragma: no cover
     mdns = mDNSBridge()
     try:
         while True:
-            print "*** mDNS ***"
-            print mdns.get_services("nmos-query"), "\n"
+            print("*** mDNS ***")
+            print(mdns.get_services("nmos-query"), "\n")
             gevent.sleep(1)
     except:
         mdns.stop()
