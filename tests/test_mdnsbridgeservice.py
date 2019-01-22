@@ -14,6 +14,7 @@
 
 import unittest
 import mock
+import six
 from gevent import signal
 
 with mock.patch("mdnsbridge.mdnsbridgeservice.monkey"):
@@ -33,7 +34,10 @@ class TestmDNSBridgeService(unittest.TestCase):
     @mock.patch('mdnsbridge.mdnsbridgeservice.mDNSBridge')
     @mock.patch('mdnsbridge.mdnsbridgeservice.HttpServer')
     @mock.patch('mdnsbridge.mdnsbridgeservice.daemon')
-    def assert_run_starts_runs_and_stops_as_expected(self, n, daemon, HttpServer, mDNSBridge, sleep, gevent_signal, http_server_fails_with_exception=None):
+    def assert_run_starts_runs_and_stops_as_expected(
+        self, n, daemon, HttpServer, mDNSBridge, sleep,
+        gevent_signal, http_server_fails_with_exception=None
+            ):
         HttpServer.return_value.started.is_set.side_effect = [False, False, False, True]
         HttpServer.return_value.failed = http_server_fails_with_exception
 
@@ -55,15 +59,15 @@ class TestmDNSBridgeService(unittest.TestCase):
             with self.assertRaises(http_server_fails_with_exception):
                 self.UUT.run()
 
-        self.assertItemsEqual(gevent_signal.mock_calls, [mock.call(signal.SIGINT, mock.ANY),
-                                                         mock.call(signal.SIGTERM, mock.ANY)])
+        six.assertCountEqual(self, gevent_signal.mock_calls, [mock.call(signal.SIGINT, mock.ANY),
+                                                              mock.call(signal.SIGTERM, mock.ANY)])
 
         self.handlers = {sig: handler for (sig, handler) in (call[1] for call in gevent_signal.mock_calls)}
 
         mDNSBridge.assert_called_once_with(domain=mock.sentinel.domain)
         HttpServer.assert_called_once_with(mDNSBridgeAPI, PORT, HOST, api_args=[mDNSBridge.return_value])
         HttpServer.return_value.start.assert_called_once_with()
-        self.assertListEqual(HttpServer.return_value.started.wait.mock_calls, [mock.call() for _ in range(0,3)])
+        self.assertListEqual(HttpServer.return_value.started.wait.mock_calls, [mock.call() for _ in range(0, 3)])
 
         if http_server_fails_with_exception is not None:
             self.UUT.facade.register_service.assert_not_called()
@@ -73,9 +77,13 @@ class TestmDNSBridgeService(unittest.TestCase):
             HttpServer.return_value.stop.assert_not_called()
             mDNSBridge.return_value.stop.assert_not_called()
         else:
-            self.UUT.facade.register_service.assert_called_once_with("http://" + HOST + ":" + str(PORT), "{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION))
+            self.UUT.facade.register_service.assert_called_once_with(
+                "http://" + HOST + ":" + str(PORT), "{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION)
+            )
             daemon.notify.assert_called_once_with("READY=1")
-            self.assertListEqual(self.UUT.facade.heartbeat_service.mock_calls, [ mock.call() for x in range(0, len(responses)/5) ])
+            self.assertListEqual(
+                self.UUT.facade.heartbeat_service.mock_calls, [mock.call() for x in range(0, len(responses)//5)]
+            )
             self.UUT.facade.unregister_service.assert_called_once_with()
             HttpServer.return_value.stop.assert_called_once_with()
             mDNSBridge.return_value.stop.assert_called_once_with()

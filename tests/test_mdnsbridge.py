@@ -15,6 +15,7 @@
 import unittest
 import mock
 import json
+import six
 
 from mdnsbridge.mdnsbridge import VALID_TYPES, APINAMESPACE, APINAME, APIVERSION, mDNSBridgeAPI, mDNSBridge
 
@@ -51,7 +52,7 @@ class TestmDNSBridgeAPI(unittest.TestCase):
     def inspect_endpoint(self, path, expected, resourceName):
         # Get reponse from test client, compare to expected
         rv = self.client.get(path)
-        actual = json.loads(rv.data)
+        actual = json.loads(rv.data.decode('utf-8'))
         message = ("{} resource at '/' should return "
                    "{}, got {}").format(resourceName, expected, actual)
         self.assertEqual(actual, expected, msg=message)
@@ -118,12 +119,20 @@ class TestmDNSBridge(unittest.TestCase):
     @mock.patch('mdnsbridge.mdnsbridge.MDNSEngine')
     def setUp(self, MDNSEngine):
         self.UUT = mDNSBridge(domain=mock.sentinel.domain)
-        self.assertItemsEqual(MDNSEngine.return_value.callback_on_services.mock_calls,
-                              [mock.call("_" + type + "._tcp", mock.ANY, registerOnly=False, domain=mock.sentinel.domain) for type in VALID_TYPES])
-        self.callbacks = {regtype.split('.')[0][1:]: f for (regtype, f) in (call[1] for call in MDNSEngine.return_value.callback_on_services.mock_calls)}
+        six.assertCountEqual(self, MDNSEngine.return_value.callback_on_services.mock_calls,
+                             [mock.call("_" + type + "._tcp", mock.ANY, registerOnly=False,
+                              domain=mock.sentinel.domain) for type in VALID_TYPES])
+        mock_calls = MDNSEngine.return_value.callback_on_services.mock_calls
+        self.callbacks = {
+            regtype.split('.')[0][1:]: f for (regtype, f) in (call[1] for call in mock_calls)
+        }
 
-    def assert_registered_callback_correctly_handles_data_from_mdns(self, type, action, name, address=None, prefer_ipv6=False, expect_no_add=False, priority=100):
+    def assert_registered_callback_correctly_handles_data_from_mdns(
+            self, type, action, name, address=None,
+            prefer_ipv6=False, expect_no_add=False, priority=100
+            ):
         expected = {'protocol': 'http',
+                    'hostname': 'test.example.com',
                     'name': name,
                     'versions': ['v1.0', 'v1.1', 'v1.2'],
                     'priority': priority,
@@ -136,6 +145,7 @@ class TestmDNSBridge(unittest.TestCase):
                                   "txt": {"pri": str(priority), "api_ver": "v1.0,v1.1,v1.2", "api_proto": "http"},
                                   "name": name,
                                   "address": address,
+                                  "hostname": 'test.example.com',
                                   "port": mock.sentinel.port, })
         if action == "add" and not expect_no_add:
             self.assertIn(expected, self.UUT.get_services(type))
@@ -144,50 +154,78 @@ class TestmDNSBridge(unittest.TestCase):
 
     def test_nmos_query_callback_add_ipv4_on_ipv4_system(self):
         """Should add the given resource to the local store."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-query', "add", mock.sentinel.name, "192.168.0.1")
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-query', "add", mock.sentinel.name, "192.168.0.1"
+        )
 
     def test_nmos_query_callback_add_ipv6_on_ipv4_system(self):
         """Should not add the given resource to the local store."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-query', "add", mock.sentinel.name, "bbc1:bbc2::bbc4", expect_no_add=True)
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-query', "add", mock.sentinel.name, "bbc1:bbc2::bbc4", expect_no_add=True
+        )
 
     def test_nmos_query_callback_add_ipv4_on_ipv6_system(self):
         """Should not add the given resource to the local store."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-query', "add", mock.sentinel.name, "192.168.0.1", prefer_ipv6=True, expect_no_add=True)
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-query', "add", mock.sentinel.name, "192.168.0.1", prefer_ipv6=True, expect_no_add=True
+        )
 
     def test_nmos_query_callback_add_ipv6_on_ipv6_system(self):
         """Should add the given resource to the local store."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-query', "add", mock.sentinel.name, "bbc1:bbc2::bbc4", prefer_ipv6=True)
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-query', "add", mock.sentinel.name, "bbc1:bbc2::bbc4", prefer_ipv6=True
+        )
 
     def test_nmos_query_callback_can_update_after_adding(self):
         """Should add the given resource to the local store and then replace it."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-query', "add", mock.sentinel.name, "192.168.0.1", priority=100)
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-query', "add", mock.sentinel.name, "192.168.0.1", priority=200)
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-query', "add", mock.sentinel.name, "192.168.0.1", priority=100
+        )
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-query', "add", mock.sentinel.name, "192.168.0.1", priority=200
+        )
 
     def test_nmos_query_callback_can_remove_after_adding(self):
         """Should add the given resource to the local store and then remove it again."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-query', "add", mock.sentinel.name, "192.168.0.1")
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-query', "remove", mock.sentinel.name)
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-query', "add", mock.sentinel.name, "192.168.0.1"
+        )
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-query', "remove", mock.sentinel.name
+        )
 
     def test_nmos_registration_callback_add_ipv4_on_ipv4_system(self):
         """Should add the given resource to the local store."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-registration', "add", mock.sentinel.name, "192.168.0.1")
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-registration', "add", mock.sentinel.name, "192.168.0.1"
+        )
 
     def test_nmos_registration_callback_add_ipv6_on_ipv4_system(self):
         """Should not add the given resource to the local store."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-registration', "add", mock.sentinel.name, "bbc1:bbc2::bbc4", expect_no_add=True)
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-registration', "add", mock.sentinel.name, "bbc1:bbc2::bbc4", expect_no_add=True
+        )
 
     def test_nmos_registration_callback_add_ipv4_on_ipv6_system(self):
         """Should not add the given resource to the local store."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-registration', "add", mock.sentinel.name, "192.168.0.1", prefer_ipv6=True, expect_no_add=True)
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-registration', "add", mock.sentinel.name, "192.168.0.1", prefer_ipv6=True, expect_no_add=True
+        )
 
     def test_nmos_registration_callback_add_ipv6_on_ipv6_system(self):
         """Should add the given resource to the local store."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-registration', "add", mock.sentinel.name, "bbc1:bbc2::bbc4", prefer_ipv6=True)
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-registration', "add", mock.sentinel.name, "bbc1:bbc2::bbc4", prefer_ipv6=True
+        )
 
     def test_nmos_registration_callback_can_remove_after_adding(self):
         """Should add the given resource to the local store and then remove it again."""
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-registration', "add", mock.sentinel.name, "192.168.0.1")
-        self.assert_registered_callback_correctly_handles_data_from_mdns('nmos-registration', "remove", mock.sentinel.name)
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-registration', "add", mock.sentinel.name, "192.168.0.1"
+        )
+        self.assert_registered_callback_correctly_handles_data_from_mdns(
+            'nmos-registration', "remove", mock.sentinel.name
+        )
 
     def test_get_service_fails_with_invalid_type(self):
         """There's no such thing as an nmos-potato, the mdnsbridge ought to know that."""
