@@ -65,7 +65,8 @@ class mDNSBridge(object):
         self.domain = domain
         for srv_type in VALID_TYPES:
             self.services[srv_type] = []
-            self.mdns.callback_on_services("_" + srv_type + "._tcp", self._mdns_callback, registerOnly=False, domain=self.domain)
+            self.mdns.callback_on_services("_" + srv_type + "._tcp", self._mdns_callback,
+                                           registerOnly=False, domain=self.domain)
 
     def _mdns_callback(self, data):
         srv_type = data["type"][1:].split(".")[0]
@@ -74,7 +75,7 @@ class mDNSBridge(object):
             versions = ["v1.0"]
             protocol = "http"
             if "pri" in data["txt"]:
-                if data["txt"]["pri"].isdigit() and data["txt"]["pri"] >= 100:
+                if data["txt"]["pri"].isdigit() and int(data["txt"]["pri"]) >= 100:
                     priority = int(data["txt"]["pri"])
             if "api_ver" in data["txt"]:
                 versions = data["txt"]["api_ver"].split(",")
@@ -82,7 +83,7 @@ class mDNSBridge(object):
                 protocol = data["txt"]["api_proto"]
             service_entry = {
                 "name": data["name"], "address": data["address"], "port": data["port"], "txt": data["txt"],
-                "priority": priority, "versions": versions, "protocol": protocol
+                "priority": priority, "versions": versions, "protocol": protocol, "hostname": data["hostname"]
             }
             for service in self.services[srv_type]:
                 if service["name"] == data["name"] and service["address"] == data["address"]:
@@ -94,8 +95,10 @@ class mDNSBridge(object):
             else:
                 if not data["address"].startswith("fe80::") and "." not in data["address"]:
                     self.services[srv_type].append(service_entry)
-            # TODO: Due to issues with python requests library, IPv6 link local addresses are not compatable with requests.request().
-            # Therefore, IPv6 Global addresses must be used for nodes to register with pipeline manager through ipppython aggregator.py
+            # TODO: Due to issues with python requests library, IPv6 link local
+            # addresses are not compatable with requests.request().
+            # Therefore, IPv6 Global addresses must be used for nodes to register
+            # with pipeline manager through ipppython aggregator.py
             # Below code will allow link-local addresses to be used if requests bug is fixed
             # else:
             #     service_entry["address"] = str(data["address"])+str("%%")+str(if_indextoname(data["interface"]))
@@ -123,5 +126,5 @@ if __name__ == "__main__":  # pragma: no cover
             print("*** mDNS ***")
             print(mdns.get_services("nmos-query"), "\n")
             gevent.sleep(1)
-    except:
+    except Exception:
         mdns.stop()

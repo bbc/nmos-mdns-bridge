@@ -5,7 +5,7 @@ import signal
 from systemd import daemon
 from nmoscommon.httpserver import HttpServer
 from nmoscommon.facade import Facade
-from mdnsbridge import mDNSBridge, mDNSBridgeAPI, APINAME, APIVERSION, APINAMESPACE
+from .mdnsbridge import mDNSBridge, mDNSBridgeAPI, APINAME, APIVERSION, APINAMESPACE
 from gevent import monkey
 monkey.patch_all()
 
@@ -40,7 +40,8 @@ class mDNSBridgeService(object):
     def run(self):
         self.running = True
         self.start()
-        self.facade.register_service("http://" + HOST + ":" + str(PORT), "{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION))
+        self.facade.register_service("http://" + HOST + ":" + str(PORT),
+                                     "{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION))
         daemon.notify("READY=1")
         itercount = 0
         while self.running:
@@ -73,5 +74,5 @@ if __name__ == "__main__":  # pragma: no cover
     try:
         while True:
             gevent.sleep(1)
-    except:
+    except Exception:
         service.stop()
