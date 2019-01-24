@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.6.1
+- Fix bug in surfacing priorities 1 through 99
+
 ## 0.6.0
 - Add ability to surface hostnames in the API
 
