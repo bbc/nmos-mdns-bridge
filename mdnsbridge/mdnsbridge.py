@@ -75,7 +75,7 @@ class mDNSBridge(object):
             versions = ["v1.0"]
             protocol = "http"
             if "pri" in data["txt"]:
-                if data["txt"]["pri"].isdigit() and int(data["txt"]["pri"]) >= 100:
+                if data["txt"]["pri"].isdigit():
                     priority = int(data["txt"]["pri"])
             if "api_ver" in data["txt"]:
                 versions = data["txt"]["api_ver"].split(",")
