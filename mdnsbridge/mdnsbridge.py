@@ -21,7 +21,7 @@ from nmoscommon.mdns import MDNSEngine
 from flask import abort
 from nmoscommon import nmoscommonconfig
 
-VALID_TYPES = ["nmos-query", "nmos-registration", "nmos-security", "nmos-register"]
+VALID_TYPES = ["nmos-query", "nmos-registration", "nmos-auth", "nmos-register"]
 
 APINAMESPACE = "x-ipstudio"
 APINAME = "mdnsbridge"
