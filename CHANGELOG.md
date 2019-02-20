@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.6.2
+- Changed service type from 'nmos-security' to 'nmos-auth'
+
 ## 0.6.1
 - Fix bug in surfacing priorities 1 through 99
 
