@@ -13,7 +13,7 @@ This API provides a zeroconf/HTTP bridge for NMOS service types. The API will pr
 *   Linux (untested on Windows and Mac)
 *   Python 2.7
 *   Python Pip
-*   [NMOS Common](https://github.com/bbc/nmos-common) (not yet available via pip)
+*   [NMOS Common](https://github.com/bbc/nmos-common)
 
 ### Steps
 
