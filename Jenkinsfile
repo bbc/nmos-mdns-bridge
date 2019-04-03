@@ -4,6 +4,7 @@
  Runs the following steps in parallel and reports results to GitHub:
  - Lint using flake8
  - Run Python 2.7 unit tests in tox
+ - Run Python 3 unit tests in tox
  - Build Debian packages for supported Ubuntu versions
 
  If these steps succeed and the master branch is being built, wheels and debs are uploaded to PyPI and the
@@ -179,7 +180,8 @@ pipeline {
                         bbcGithubNotify(context: "pypi/upload", status: "PENDING")
                         sh 'rm -rf dist/*'
                         bbcMakeGlobalWheel("py27")
-                        bbcTwineUpload(toxenv: "py27", pypi: true)
+                        bbcMakeGlobalWheel("py3")
+                        bbcTwineUpload(toxenv: "py3", pypi: true)
                         script {
                             env.pypiUpload_result = "SUCCESS" // This will only run if the steps above succeeded
                         }
