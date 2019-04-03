@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.6.3
+- Add support for Python 3
+
 ## 0.6.2
 - Changed service type from 'nmos-security' to 'nmos-auth'
 
