@@ -1,0 +1,12 @@
+[Unit]
+Description=nmos-mdnsbridge
+Wants=network-online.target avahi-daemon.service apache2.service ips-nodefacade.service
+After=network.target network-online.target avahi-daemon.service apache2.service ips-nodefacade.service
+
+[Service]
+User=ipstudio
+ExecStart=/usr/bin/nmos-mdnsbridge
+
+[Install]
+Alias=nmos-mdnsbridge.service ips-mdnsbridge.service
+WantedBy=multi-user.target

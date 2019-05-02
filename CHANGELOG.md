@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.6.4
+- Fix missing files in Python 3 Debian package
+
 ## 0.6.3
 - Add support for Python 3
 
