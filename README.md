@@ -25,6 +25,10 @@ $ pip install setuptools
 $ sudo python setup.py install
 ```
 
+## Configuration
+
+The mDNS Bridge makes use of a configuration file provided by the [NMOS Common Library](https://github.com/bbc/nmos-common). Please see that repository for configuration details.
+
 ## Usage
 
 On systems using systemd for service management (e.g Ubuntu >= 16.04) mdnsbridge may be run as a service. To enable the service create a symbolic link and start the service as follows:
