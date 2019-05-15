@@ -40,63 +40,77 @@ pipeline {
         }
         stage ("Tests") {
             parallel {
-                stage ("Unit Tests") {
-                    stages {
-                        stage ("Linting Check") {
-                            steps {
-                                script {
-                                    env.lint_result = "FAILURE"
-                                }
-                                bbcGithubNotify(context: "lint/flake8", status: "PENDING")
-                                // Run the linter, excluding build directories (this can also go in the .flake8 config file)
-                                sh 'flake8 --exclude .git,.tox,dist,deb_dist,__pycache__'
-                                script {
-                                    env.lint_result = "SUCCESS" // This will only run if the sh above succeeded
-                                }
-                            }
-                            post {
-                                always {
-                                    bbcGithubNotify(context: "lint/flake8", status: env.lint_result)
-                                }
-                            }
+                stage ("Py2.7 Linting Check") {
+                    steps {
+                        script {
+                            env.lint27_result = "FAILURE"
                         }
-                        stage ("Python 2.7 Unit Tests") {
-                            steps {
-                                script {
-                                    env.py27_result = "FAILURE"
-                                }
-                                bbcGithubNotify(context: "tests/py27", status: "PENDING")
-                                // Use a workdirectory in /tmp to avoid shebang length limitation
-                                withBBCRDPythonArtifactory {
-                                  sh 'tox -e py27 --recreate --workdir /tmp/$(basename ${WORKSPACE})/tox-py27'
-                                }
-                                script {
-                                    env.py27_result = "SUCCESS" // This will only run if the sh above succeeded
-                                }
-                            }
-                            post {
-                                always {
-                                    bbcGithubNotify(context: "tests/py27", status: env.py27_result)
-                                }
-                            }
+                        bbcGithubNotify(context: "lint/flake8_27", status: "PENDING")
+                        // Run the linter
+                        sh 'python2.7 -m flake8'
+                        script {
+                            env.lint27_result = "SUCCESS" // This will only run if the sh above succeeded
                         }
-                        stage ("Python 3 Unit Tests") {
-                            steps {
-                                script {
-                                    env.py3_result = "FAILURE"
-                                }
-                                bbcGithubNotify(context: "tests/py3", status: "PENDING")
-                                // Use a workdirectory in /tmp to avoid shebang length limitation
-                                sh 'tox -e py3 --recreate --workdir /tmp/$(basename ${WORKSPACE})/tox-py3'
-                                script {
-                                    env.py3_result = "SUCCESS" // This will only run if the sh above succeeded
-                                }
-                            }
-                            post {
-                                always {
-                                    bbcGithubNotify(context: "tests/py3", status: env.py3_result)
-                                }
-                            }
+                    }
+                    post {
+                        always {
+                            bbcGithubNotify(context: "lint/flake8_27", status: env.lint27_result)
+                        }
+                    }
+                }
+                stage ("Py3 Linting Check") {
+                    steps {
+                        script {
+                            env.lint3_result = "FAILURE"
+                        }
+                        bbcGithubNotify(context: "lint/flake8_3", status: "PENDING")
+                        // Run the linter
+                        sh 'python3 -m flake8'
+                        script {
+                            env.lint3_result = "SUCCESS" // This will only run if the sh above succeeded
+                        }
+                    }
+                    post {
+                        always {
+                            bbcGithubNotify(context: "lint/flake8_3", status: env.lint3_result)
+                        }
+                    }
+                }
+                stage ("Python 2.7 Unit Tests") {
+                    steps {
+                        script {
+                            env.py27_result = "FAILURE"
+                        }
+                        bbcGithubNotify(context: "tests/py27", status: "PENDING")
+                        // Use a workdirectory in /tmp to avoid shebang length limitation
+                        withBBCRDPythonArtifactory {
+                          sh 'tox -e py27 --recreate --workdir /tmp/$(basename ${WORKSPACE})/tox-py27'
+                        }
+                        script {
+                            env.py27_result = "SUCCESS" // This will only run if the sh above succeeded
+                        }
+                    }
+                    post {
+                        always {
+                            bbcGithubNotify(context: "tests/py27", status: env.py27_result)
+                        }
+                    }
+                }
+                stage ("Python 3 Unit Tests") {
+                    steps {
+                        script {
+                            env.py3_result = "FAILURE"
+                        }
+                        bbcGithubNotify(context: "tests/py3", status: "PENDING")
+                        // Use a workdirectory in /tmp to avoid shebang length limitation
+                        sh 'tox -e py3 --recreate --workdir /tmp/$(basename ${WORKSPACE})/tox-py3'
+                        script {
+                            env.py3_result = "SUCCESS" // This will only run if the sh above succeeded
+                        }
+                    }
+                    post {
+                        always {
+                            bbcGithubNotify(context: "tests/py3", status: env.py3_result)
                         }
                     }
                 }
