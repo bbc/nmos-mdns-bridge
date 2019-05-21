@@ -49,11 +49,12 @@ packages_required = [
     "gevent>=1.2.2",
     "nmoscommon>=0.12.0",
     "flask>=0.10.1",
-    "systemd"
+    "systemd",
+    "requests"
 ]
 
 setup(name="mdnsbridge",
-      version="0.6.4",
+      version="0.7.0",
       description="An API providing a DNS-SD/HTTP bridge for AMWA NMOS service types",
       url='https://github.com/bbc/nmos-mdns-bridge',
       author='Peter Brightwell',

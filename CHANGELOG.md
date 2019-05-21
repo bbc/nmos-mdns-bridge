@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.7.0
+- Add mDNS bridge client library from nmos-common
+
 ## 0.6.4
 - Fix missing files in Python 3 Debian package
 
