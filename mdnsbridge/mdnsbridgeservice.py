@@ -4,7 +4,12 @@ import gevent
 import signal
 from systemd import daemon
 from nmoscommon.httpserver import HttpServer
-from nmoscommon.facade import Facade
+try:
+    from nmosnode.facade import Facade
+    NODE_API_PRESENT = True
+except ImportError:
+    Facade = None
+    NODE_API_PRESENT = False
 from .mdnsbridge import mDNSBridge, mDNSBridgeAPI, APINAME, APIVERSION, APINAMESPACE
 from gevent import monkey
 monkey.patch_all()
@@ -17,7 +22,10 @@ class mDNSBridgeService(object):
     def __init__(self, domain=None):
         self.running = False
         self.registered = False
-        self.facade = Facade("{}/{}".format(APINAME, APIVERSION))
+        if NODE_API_PRESENT:
+            self.facade = Facade("{}/{}".format(APINAME, APIVERSION))
+        else:
+            self.facade = None
         self.domain = domain
 
     def start(self):
@@ -40,17 +48,20 @@ class mDNSBridgeService(object):
     def run(self):
         self.running = True
         self.start()
-        self.facade.register_service("http://" + HOST + ":" + str(PORT),
-                                     "{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION))
+        if self.facade:
+            self.facade.register_service("http://" + HOST + ":" + str(PORT),
+                                         "{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION))
         daemon.notify("READY=1")
         itercount = 0
         while self.running:
             itercount += 1
             gevent.sleep(1)
             if itercount == 5:  # 5 seconds
-                self.facade.heartbeat_service()
+                if self.facade:
+                    self.facade.heartbeat_service()
                 itercount = 0
-        self.facade.unregister_service()
+        if self.facade:
+            self.facade.unregister_service()
         self._cleanup()
 
     def stop(self):

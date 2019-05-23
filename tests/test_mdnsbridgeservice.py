@@ -17,6 +17,7 @@ import mock
 import six
 from gevent import signal
 
+
 with mock.patch("mdnsbridge.mdnsbridgeservice.monkey"):
     from mdnsbridge.mdnsbridgeservice import HOST, PORT, mDNSBridgeService
     from mdnsbridge.mdnsbridge import mDNSBridgeAPI, APINAME, APINAMESPACE, APIVERSION
@@ -24,6 +25,7 @@ with mock.patch("mdnsbridge.mdnsbridgeservice.monkey"):
 
 class TestmDNSBridgeService(unittest.TestCase):
     @mock.patch('mdnsbridge.mdnsbridgeservice.Facade')
+    @mock.patch("mdnsbridge.mdnsbridgeservice.NODE_API_PRESENT", True)
     def setUp(self, Facade):
         self.UUT = mDNSBridgeService(domain=mock.sentinel.domain)
         Facade.assert_called_once_with("{}/{}".format(APINAME, APIVERSION))
