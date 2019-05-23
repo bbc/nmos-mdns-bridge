@@ -8,6 +8,7 @@ try:
     from nmosnode.facade import Facade
     NODE_API_PRESENT = True
 except ImportError:
+    Facade = None
     NODE_API_PRESENT = False
 from .mdnsbridge import mDNSBridge, mDNSBridgeAPI, APINAME, APIVERSION, APINAMESPACE
 from gevent import monkey
