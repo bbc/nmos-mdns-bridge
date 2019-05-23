@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.7.1
+- Use facade class from nmosnode if present
+
 ## 0.7.0
 - Add mDNS bridge client library from nmos-common
 
