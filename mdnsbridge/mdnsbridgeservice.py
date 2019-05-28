@@ -2,7 +2,11 @@
 
 import gevent
 import signal
-from systemd import daemon
+try: # handle if older systemd installed
+    from cysystemd import daemon
+except ImportError:
+    from systemd import daemon
+
 from nmoscommon.httpserver import HttpServer
 try:
     from nmosnode.facade import Facade
