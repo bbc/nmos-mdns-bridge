@@ -2,7 +2,9 @@
 
 import gevent
 import signal
-try: # handle if older systemd installed
+
+# Handle if systemd is installed instead of newer cysystemd
+try:
     from cysystemd import daemon
 except ImportError:
     from systemd import daemon
