@@ -55,7 +55,7 @@ class mDNSBridgeService(object):
         if self.facade:
             self.facade.register_service("http://" + HOST + ":" + str(PORT),
                                          "{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION))
-        daemon.notify("READY=1")
+        daemon.notify(daemon.Notification.READY)
         itercount = 0
         while self.running:
             itercount += 1
