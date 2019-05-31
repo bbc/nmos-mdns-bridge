@@ -49,7 +49,7 @@ packages_required = [
     "gevent>=1.2.2",
     "nmoscommon>=0.12.0",
     "flask>=0.10.1",
-    "systemd",
+    "cysystemd",
     "requests"
 ]
 

@@ -16,6 +16,7 @@ import unittest
 import mock
 import six
 from gevent import signal
+from cysystemd.daemon import Notification 
 
 
 with mock.patch("mdnsbridge.mdnsbridgeservice.monkey"):
@@ -82,7 +83,7 @@ class TestmDNSBridgeService(unittest.TestCase):
             self.UUT.facade.register_service.assert_called_once_with(
                 "http://" + HOST + ":" + str(PORT), "{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION)
             )
-            daemon.notify.assert_called_once_with("READY=1")
+            daemon.notify.assert_called_once_with(Notification.READY)
             self.assertListEqual(
                 self.UUT.facade.heartbeat_service.mock_calls, [mock.call() for x in range(0, len(responses)//5)]
             )

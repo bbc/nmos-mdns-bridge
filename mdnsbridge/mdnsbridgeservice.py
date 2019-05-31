@@ -2,7 +2,15 @@
 
 import gevent
 import signal
-from systemd import daemon
+
+# Handle if systemd is installed instead of newer cysystemd
+try:
+    from cysystemd import daemon
+    SYSTEMD_READY = daemon.Notification.READY
+except ImportError:
+    from systemd import daemon
+    SYSTEMD_READY = "READY=1"
+
 from nmoscommon.httpserver import HttpServer
 try:
     from nmosnode.facade import Facade
@@ -51,7 +59,7 @@ class mDNSBridgeService(object):
         if self.facade:
             self.facade.register_service("http://" + HOST + ":" + str(PORT),
                                          "{}/{}/{}/".format(APINAMESPACE, APINAME, APIVERSION))
-        daemon.notify("READY=1")
+        daemon.notify(SYSTEMD_READY)
         itercount = 0
         while self.running:
             itercount += 1
