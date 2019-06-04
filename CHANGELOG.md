@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.7.2
+- Move NMOS packages from recommends to depends
+
 ## 0.7.1
 - Use facade class from nmosnode if present
 
