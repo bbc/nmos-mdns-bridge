@@ -54,7 +54,7 @@ packages_required = [
 ]
 
 setup(name="mdnsbridge",
-      version="0.7.2",
+      version="0.7.3",
       description="An API providing a DNS-SD/HTTP bridge for AMWA NMOS service types",
       url='https://github.com/bbc/nmos-mdns-bridge',
       author='Peter Brightwell',
