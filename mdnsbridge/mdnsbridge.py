@@ -74,15 +74,23 @@ class mDNSBridge(object):
             priority = 0
             versions = ["v1.0"]
             protocol = "http"
-            if "pri" in data["txt"]:
-                if data["txt"]["pri"].isdigit():
-                    priority = int(data["txt"]["pri"])
-            if "api_ver" in data["txt"]:
-                versions = data["txt"]["api_ver"].split(",")
-            if "api_proto" in data["txt"]:
-                protocol = data["txt"]["api_proto"]
+            txt_data = {}
+            # Convert txt data from binary data in python3
+            for key, value in data["txt"].items():
+                if type(key) is not str:
+                    key = key.decode('ascii')
+                if type(value) is not str:
+                    value = value.decode('ascii')
+                txt_data[key] = value
+            if "pri" in txt_data:
+                if txt_data["pri"].isdigit():
+                    priority = int(txt_data["pri"])
+            if "api_ver" in txt_data:
+                versions = txt_data["api_ver"].split(",")
+            if "api_proto" in txt_data:
+                protocol = txt_data["api_proto"]
             service_entry = {
-                "name": data["name"], "address": data["address"], "port": data["port"], "txt": data["txt"],
+                "name": data["name"], "address": data["address"], "port": data["port"], "txt": txt_data,
                 "priority": priority, "versions": versions, "protocol": protocol, "hostname": data["hostname"]
             }
             for service in self.services[srv_type]:
