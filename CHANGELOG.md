@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.7.3
+- Fix python3 errors
+
 ## 0.7.2
 - Move NMOS packages from recommends to depends
 
