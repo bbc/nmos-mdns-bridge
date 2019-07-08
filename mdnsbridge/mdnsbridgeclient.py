@@ -81,7 +81,7 @@ class IppmDNSBridge(object):
                 if service["priority"] == priority:
                     return self._createHref(service)
             else:
-                if service["priority"] <= current_priority:
+                if service["priority"] < current_priority:
                     current_priority = service["priority"]
                     valid_services = []
                 if service["priority"] == current_priority:
