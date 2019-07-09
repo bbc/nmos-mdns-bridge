@@ -401,3 +401,39 @@ class TestIppmDNSBridge(unittest.TestCase):
         get.return_value.json.return_value = {"representation": json.loads(json.dumps(services))}
         href = self.UUT.getHref(srv_type)
         self.assertEqual(href, services[0]["protocol"] + "://" + services[0]["hostname"] + ":" + str(services[0]["port"]))
+
+    @mock.patch('requests.get')
+    @mock.patch('random.shuffle')
+    def test_gethref_list_returns_list_of_services(self, rand, get):
+        srv_type = "potato"
+        self.UUT.config['priority'] = 10
+        self.UUT.config['https_mode'] = "disabled"
+        self.UUT.config['prefer_hostnames'] = True
+
+        services = [
+            {"priority": 10, "protocol": "http", "address": "service_address0", "port": 12345, "hostname": "service_hostname0", "versions": DEFAULT_VERSIONS},
+        ]
+
+        get.return_value.status_code = 200
+        get.return_value.json.return_value = {"representation": json.loads(json.dumps(services))}
+        href_list = self.UUT.getHrefList(srv_type)
+        self.assertEqual(href_list[0], services[0]["protocol"] + "://" + services[0]["hostname"] + ":" + str(services[0]["port"]))
+
+    @mock.patch('requests.get')
+    @mock.patch('random.shuffle')
+    def test_gethref_list_returns_list_of_single_service(self, rand, get):
+        srv_type = "potato"
+        self.UUT.config['priority'] = 101
+        self.UUT.config['https_mode'] = "disabled"
+        self.UUT.config['prefer_hostnames'] = True
+
+        services = [
+            {"priority": 10, "protocol": "http", "address": "service_address0", "port": 12345, "hostname": "service_hostname0", "versions": DEFAULT_VERSIONS},
+            {"priority": 101, "protocol": "http", "address": "service_address1", "port": 12346, "hostname": "service_hostname0", "versions": DEFAULT_VERSIONS},
+            {"priority": 12, "protocol": "http", "address": "service_address2", "port": 12347, "hostname": "service_hostname0", "versions": DEFAULT_VERSIONS}
+        ]
+
+        get.return_value.status_code = 200
+        get.return_value.json.return_value = {"representation": json.loads(json.dumps(services))}
+        href_list = self.UUT.getHrefList(srv_type)
+        self.assertEqual(href_list[0], services[1]["protocol"] + "://" + services[1]["hostname"] + ":" + str(services[1]["port"]))
