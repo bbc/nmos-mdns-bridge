@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.8.0
+- Signal authorization support in API
+
 ## 0.7.3
 - Fix python3 errors
 
