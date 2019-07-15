@@ -290,7 +290,7 @@ class TestIppmDNSBridge(unittest.TestCase):
     @mock.patch('random.shuffle')
     def test_gethref_second_call_uses_cache(self, rand, get):
         srv_type = "potato"
-        self.UUT.config['priority'] = 99
+        priority = 13
         self.UUT.config['https_mode'] = "disabled"
 
         services = [
@@ -302,11 +302,11 @@ class TestIppmDNSBridge(unittest.TestCase):
         get.side_effect = [mock.DEFAULT, Exception]
         get.return_value.status_code = 200
         get.return_value.json.return_value = {"representation": json.loads(json.dumps(services))}
-        href = self.UUT.getHref(srv_type)
+        href = self.UUT.getHref(srv_type, priority=priority)
         self.assertEqual(href, services[1]["protocol"] + "://" + services[1]["address"] + ":" + str(services[1]["port"]))
 
         get.reset_mock()
-        href = self.UUT.getHref(srv_type)
+        href = self.UUT.getHref(srv_type, priority=priority)
         get.assert_not_called()
         self.assertEqual(href, services[2]["protocol"] + "://" + services[2]["address"] + ":" + str(services[2]["port"]))
 

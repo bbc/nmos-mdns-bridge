@@ -115,11 +115,9 @@ class IppmDNSBridge(object):
         valid_services = self._getServiceList(srv_type, priority, api_ver, api_proto)
 
         if type(valid_services) is list:
-            # Randomise selection. Delete entry from the services list and return it
             service = valid_services.pop(0)
-            href = self._createHref(service)
             self.services[srv_type].remove(service)
-            return href
+            return self._createHref(service)
         else:
             return valid_services
 
