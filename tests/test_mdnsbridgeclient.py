@@ -332,7 +332,7 @@ class TestIppmDNSBridge(unittest.TestCase):
         get.reset_mock()
         href = self.UUT.getHref(srv_type)
         get.assert_not_called()
-        self.assertEqual(href, services[0]["protocol"] + "://" + services[0]["address"] + ":" + str(services[0]["port"]))
+        self.assertEqual(href, services[1]["protocol"] + "://" + services[1]["address"] + ":" + str(services[1]["port"]))
 
     @mock.patch('requests.get')
     @mock.patch('random.shuffle')

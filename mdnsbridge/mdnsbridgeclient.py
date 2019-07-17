@@ -79,7 +79,7 @@ class IppmDNSBridge(object):
 
             if priority >= 100:
                 if service["priority"] == priority:
-                    return self._createHref(service)
+                    return [service]
             else:
                 if service["priority"] < current_priority:
                     current_priority = service["priority"]
@@ -109,7 +109,7 @@ class IppmDNSBridge(object):
                 self.services[srv_type].remove(service)
             return href_list
         else:
-            return [valid_services]
+            return None
 
     def getHref(self, srv_type, priority=None, api_ver=None, api_proto=None):
         valid_services = self._getServiceList(srv_type, priority, api_ver, api_proto)
