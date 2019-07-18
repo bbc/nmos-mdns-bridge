@@ -74,6 +74,7 @@ class mDNSBridge(object):
             priority = 0
             versions = ["v1.0"]
             protocol = "http"
+            authorization = False
             txt_data = {}
             # Convert txt data from binary data in python3
             for key, value in data["txt"].items():
@@ -89,9 +90,13 @@ class mDNSBridge(object):
                 versions = txt_data["api_ver"].split(",")
             if "api_proto" in txt_data:
                 protocol = txt_data["api_proto"]
+            if "api_auth" in txt_data:
+                if txt_data["api_auth"] == "true":
+                    authorization = True
             service_entry = {
                 "name": data["name"], "address": data["address"], "port": data["port"], "txt": txt_data,
-                "priority": priority, "versions": versions, "protocol": protocol, "hostname": data["hostname"]
+                "priority": priority, "versions": versions, "protocol": protocol, "hostname": data["hostname"],
+                "authorization": authorization
             }
             for service in self.services[srv_type]:
                 if service["name"] == data["name"] and service["address"] == data["address"]:
