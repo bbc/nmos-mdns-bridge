@@ -137,16 +137,20 @@ class TestmDNSBridge(unittest.TestCase):
                     'versions': ['v1.0', 'v1.1', 'v1.2'],
                     'priority': priority,
                     'address': address,
-                    'txt': {'api_ver': 'v1.0,v1.1,v1.2', 'api_proto': 'http', 'pri': str(priority)},
-                    'port': mock.sentinel.port}
+                    'txt': {'api_ver': 'v1.0,v1.1,v1.2', 'api_proto': 'http', 'pri': str(priority),
+                            'api_auth': 'false'},
+                    'port': mock.sentinel.port,
+                    'authorization': False}
         with mock.patch('nmoscommon.nmoscommonconfig.config', {'prefer_ipv6': prefer_ipv6}):
             self.callbacks[type]({"type": "_" + type + "._tcp",
                                   "action": action,
-                                  "txt": {"pri": str(priority), "api_ver": "v1.0,v1.1,v1.2", "api_proto": "http"},
+                                  "txt": {"pri": str(priority), "api_ver": "v1.0,v1.1,v1.2", "api_proto": "http",
+                                          "api_auth": "false"},
                                   "name": name,
                                   "address": address,
                                   "hostname": 'test.example.com',
-                                  "port": mock.sentinel.port, })
+                                  "port": mock.sentinel.port,
+                                  "authorization": False})
         if action == "add" and not expect_no_add:
             self.assertIn(expected, self.UUT.get_services(type))
         else:

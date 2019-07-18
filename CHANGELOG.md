@@ -1,7 +1,11 @@
 # NMOS mDNS Bridge Library Changelog
 
-## 0.7.4
+
+## 0.8.1
 - Add method to return list of all service available
+
+## 0.8.0
+- Signal authorization support in API
 
 ## 0.7.3
 - Fix python3 errors
