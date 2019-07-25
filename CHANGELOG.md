@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.8.1
+- Handle case where txt data includes a boolean
+
 ## 0.8.0
 - Signal authorization support in API
 

@@ -1,7 +1,7 @@
 %global module_name mdnsbridge
 
 Name: 			python-%{module_name}
-Version: 		0.8.0
+Version: 		0.8.1
 Release: 		1%{?dist}
 License: 		Internal Licence
 Summary: 		mDNS to HTTP bridge service

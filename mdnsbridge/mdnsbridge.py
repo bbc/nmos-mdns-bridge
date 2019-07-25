@@ -80,7 +80,7 @@ class mDNSBridge(object):
             for key, value in data["txt"].items():
                 if type(key) is not str:
                     key = key.decode('ascii')
-                if type(value) is not str:
+                if type(value) not in (str, bool):
                     value = value.decode('ascii')
                 txt_data[key] = value
             if "pri" in txt_data:
