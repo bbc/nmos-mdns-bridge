@@ -1,7 +1,7 @@
 # NMOS mDNS Bridge Library Changelog
 
 
-## 0.8.1
+## 0.8.2
 - Add method to return list of all service available
 
 ## 0.8.0
