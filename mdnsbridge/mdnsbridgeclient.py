@@ -42,7 +42,7 @@ class IppmDNSBridge(object):
             self.logger.writeWarning("No local query service running {}".format(e))
         return ""
 
-    def _getServiceList(self, srv_type, priority=None, api_ver=None, api_proto=None):
+    def getHref(self, srv_type, priority=None, api_ver=None, api_proto=None, flush=False):
         if priority is None:
             priority = self.config["priority"]
 
@@ -63,9 +63,12 @@ class IppmDNSBridge(object):
             if priority >= 100:
                 if service["priority"] == priority:
                     no_results = False
+                    break
             elif service["priority"] < 100:
                 no_results = False
-        if no_results:
+                break
+
+        if no_results or flush:
             self._updateServices(srv_type)
 
         # Re-check if there are any and return "" if not.
@@ -76,50 +79,28 @@ class IppmDNSBridge(object):
                 continue
             if api_proto is not None and api_proto != service["protocol"]:
                 continue
-
             if priority >= 100:
                 if service["priority"] == priority:
-                    return [service]
+                    valid_services.append(service)
             else:
                 if service["priority"] < current_priority:
                     current_priority = service["priority"]
                     valid_services = []
                 if service["priority"] == current_priority:
                     valid_services.append(service)
-
         if len(valid_services) == 0:
             self.logger.writeWarning("No services found: {}".format(srv_type))
             if srv_type == "nmos-query":
                 return self._checkLocalQueryServiceExists()
             return ""
 
-        # Randomise selection.
+        # Randomise selection. Delete entry from the services list and return it
         random.seed()
-        random.shuffle(valid_services)
-        return valid_services
-
-    def getHrefList(self, srv_type, priority=None, api_ver=None, api_proto=None):
-        """Get a list of valid service hrefs for the priority, service type and version specified"""
-        valid_services = self._getServiceList(srv_type, priority, api_ver, api_proto)
-
-        if type(valid_services) is list:
-            href_list = []
-            for service in valid_services:
-                href_list.append(self._createHref(service))
-                self.services[srv_type].remove(service)
-            return href_list
-        else:
-            return None
-
-    def getHref(self, srv_type, priority=None, api_ver=None, api_proto=None):
-        valid_services = self._getServiceList(srv_type, priority, api_ver, api_proto)
-
-        if type(valid_services) is list:
-            service = valid_services.pop(0)
-            self.services[srv_type].remove(service)
-            return self._createHref(service)
-        else:
-            return valid_services
+        index = random.randint(0, len(valid_services)-1)
+        service = valid_services[index]
+        href = self._createHref(service)
+        self.services[srv_type].remove(service)
+        return href
 
     def _createHref(self, service):
         proto = service['protocol']
