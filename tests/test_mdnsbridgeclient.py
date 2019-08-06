@@ -358,7 +358,7 @@ class TestIppmDNSBridge(unittest.TestCase):
 
     @mock.patch('requests.get')
     @mock.patch('random.randint', return_value=0)  # guaranteed random, chosen by roll of fair die
-    def test_gethref_does_not_use_cache_when_flush(self, rand, get):
+    def test_gethref_does_not_use_cache_when_flushed(self, rand, get):
         srv_type = "potato"
         self.UUT.config['priority'] = 0
         self.UUT.config['https_mode'] = "disabled"
