@@ -37,30 +37,17 @@ class IppmDNSBridge(object):
         self.config = {}
         self.config.update(_config)
 
-    def _checkLocalQueryServiceExists(self):
-        url = "http://127.0.0.1/x-nmos/query/v1.0/"
-        try:
-            # Request to localhost:18870/ - if it succeeds, the service exists AND is running AND is accessible
-            r = requests.get(url, timeout=0.5)
-            if r is not None and r.status_code == 200:
-                # If any results, put them in self.services
-                return url
-
-        except Exception as e:
-            self.logger.writeWarning("No local query service running {}".format(e))
-        return ""
-
     def getHref(self, srv_type, priority=None, api_ver=None, api_proto=None):
-        for i in range(2):
+        try:
             try:
                 return self.getHrefWithException(srv_type, priority, api_ver, api_proto, False)
-            except NoAggregator:
-                self.logger.writeInfo("No Aggregator for for {}, priority={}, api_ver={}, api_proto={}".format(
-                    srv_type, priority, api_ver, api_proto))
-                return ""
             except EndOfAggregatorList:
                 self.logger.writeInfo("End of Aggregator list, reloading")
-        else:
+                # Re-try after flushing cache
+                return self.getHrefWithException(srv_type, priority, api_ver, api_proto, False)
+        except NoAggregator:
+            self.logger.writeInfo("No Aggregator for for {}, priority={}, api_ver={}, api_proto={}".format(
+                srv_type, priority, api_ver, api_proto))
             return ""
 
     def getHrefWithException(self, srv_type, priority=None, api_ver=None, api_proto=None, flush=False):
@@ -74,25 +61,35 @@ class IppmDNSBridge(object):
         if srv_type not in self.services:
             self.services[srv_type] = []
 
-        # Check if there are any of that type of service, if not do a request
-        no_results = True
-        for service in self.services[srv_type]:
-            if api_ver is not None and api_ver not in service["versions"]:
-                continue
-            if api_proto is not None and api_proto != service["protocol"]:
-                continue
-            if priority >= 100:
-                if service["priority"] == priority:
-                    no_results = False
-                    break
-            elif service["priority"] < 100:
-                no_results = False
-                break
-
-        if no_results or flush:
+        # Flush the cached list of services
+        if flush:
             self._updateServices(srv_type)
 
-        # Re-check if there are any and return "" if not.
+        # Check if there are any of that type of service, if not do a request
+        valid_services = self._getValidServices(srv_type, priority, api_ver, api_proto)
+
+        if len(valid_services) == 0:
+            self._updateServices(srv_type)
+            valid_services = self._getValidServices(srv_type, priority, api_ver, api_proto)
+
+            if len(valid_services) == 0:
+                raise NoAggregator
+            else:
+                raise EndOfAggregatorList
+
+        # Randomise selection. Delete entry from the services list and return it
+        random.seed()
+        index = random.randint(0, len(valid_services)-1)
+        service = valid_services[index]
+        href = self._createHref(service)
+        try:
+            self.services[srv_type].remove(service)
+        except Exception:
+            self.logger.writeWarning("Could not remove service: {}".format(service))
+
+        return href
+
+    def _getValidServices(self, srv_type, priority, api_ver=None, api_proto=None):
         current_priority = 99
         valid_services = []
         for service in self.services[srv_type]:
@@ -109,21 +106,8 @@ class IppmDNSBridge(object):
                     valid_services = []
                 if service["priority"] == current_priority:
                     valid_services.append(service)
-        if len(valid_services) == 0:
-            self.logger.writeWarning("No services found: {}".format(srv_type))
-            if srv_type == "nmos-query":
-                return self._checkLocalQueryServiceExists()
 
-            return ""
-
-        # Randomise selection. Delete entry from the services list and return it
-        random.seed()
-        index = random.randint(0, len(valid_services)-1)
-        service = valid_services[index]
-        href = self._createHref(service)
-        self.services[srv_type].remove(service)
-        return href
-
+        return valid_services
 
     def _createHref(self, service):
         proto = service['protocol']

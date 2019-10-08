@@ -262,43 +262,6 @@ class TestIppmDNSBridge(unittest.TestCase):
 
     @mock.patch('requests.get')
     @mock.patch('random.randint', return_value=0)  # guaranteed random, chosen by roll of fair die
-    def test_gethref_returns_local_service_when_no_matching_query_service(self, rand, get):
-        srv_type = "nmos-query"
-        self.UUT.config['priority'] = 100
-        self.UUT.config['https_mode'] = "disabled"
-
-        services = [
-            {"priority": 97, "protocol": "http", "address": "service_address0", "port": 12345, "hostname": "service_host0", "versions": DEFAULT_VERSIONS},
-            {"priority": 13, "protocol": "http", "address": "service_address1", "port": 12346, "hostname": "service_host1", "versions": DEFAULT_VERSIONS},
-            {"priority": 53, "protocol": "http", "address": "service_address2", "port": 12347, "hostname": "service_host2", "versions": DEFAULT_VERSIONS},
-            ]
-
-        get.return_value.status_code = 200
-        get.return_value.json.side_effect = [{"representation": json.loads(json.dumps(services))}, mock.sentinel.SHOULD_BE_IGNORED]
-        href = self.UUT.getHref(srv_type)
-        self.assertEqual(href, "http://127.0.0.1/x-nmos/query/v1.0/")
-
-    @mock.patch('requests.get')
-    @mock.patch('random.randint', return_value=0)  # guaranteed random, chosen by roll of fair die
-    def test_gethref_returns_empty_string_when_no_matching_query_service_including_local(self, rand, get):
-        srv_type = "nmos-query"
-        self.UUT.config['priority'] = 100
-        self.UUT.config['https_mode'] = "disabled"
-
-        services = [
-            {"priority": 97, "protocol": "http", "address": "service_address0", "port": 12345, "hostname": "service_host0", "versions": DEFAULT_VERSIONS},
-            {"priority": 13, "protocol": "http", "address": "service_address1", "port": 12346, "hostname": "service_host1", "versions": DEFAULT_VERSIONS},
-            {"priority": 53, "protocol": "http", "address": "service_address2", "port": 12347, "hostname": "service_host2", "versions": DEFAULT_VERSIONS},
-            ]
-
-        get.side_effect = [mock.DEFAULT, Exception]
-        get.return_value.status_code = 200
-        get.return_value.json.return_value = {"representation": json.loads(json.dumps(services))}
-        href = self.UUT.getHref(srv_type)
-        self.assertEqual(href, "")
-
-    @mock.patch('requests.get')
-    @mock.patch('random.randint', return_value=0)  # guaranteed random, chosen by roll of fair die
     def test_gethref_returns_empty_string_when_request_fails(self, rand, get):
         srv_type = "potato"
         self.UUT.config['priority'] = 100
