@@ -380,12 +380,12 @@ class TestIppmDNSBridge(unittest.TestCase):
         getmocks[0].json.return_value = {"representation": json.loads(json.dumps(services))}
         getmocks[1].status_code = 200
         getmocks[1].json.return_value = {"representation": json.loads(json.dumps(second_services))}
-        href = self.UUT.getHref(srv_type, flush=True)
+        href = self.UUT.getHrefWithException(srv_type, flush=True)
         get.assert_called_once_with("http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/" + srv_type + "/", timeout=0.5, proxies={'http': ''})
         self.assertEqual(href, services[0]["protocol"] + "://" + services[0]["address"] + ":" + str(services[0]["port"]))
 
         get.reset_mock()
-        href = self.UUT.getHref(srv_type, flush=True)
+        href = self.UUT.getHrefWithException(srv_type, flush=True)
         get.assert_called_once_with("http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/" + srv_type + "/", timeout=0.5, proxies={'http': ''})
         self.assertEqual(href, second_services[1]["protocol"] + "://" + second_services[1]["address"] + ":" + str(second_services[1]["port"]))
 

@@ -22,6 +22,14 @@ from nmoscommon.nmoscommonconfig import config as _config
 from nmoscommon.logger import Logger
 
 
+class NoAggregator(Exception):
+    pass
+
+
+class EndOfAggregatorList(Exception):
+    pass
+
+
 class IppmDNSBridge(object):
     def __init__(self, logger=None):
         self.logger = Logger("mdnsbridge", logger)
@@ -42,7 +50,20 @@ class IppmDNSBridge(object):
             self.logger.writeWarning("No local query service running {}".format(e))
         return ""
 
-    def getHref(self, srv_type, priority=None, api_ver=None, api_proto=None, flush=False):
+    def getHref(self, srv_type, priority=None, api_ver=None, api_proto=None):
+        for i in range(2):
+            try:
+                return self.getHrefWithException(srv_type, priority, api_ver, api_proto, False)
+            except NoAggregator:
+                self.logger.writeInfo("No Aggregator for for {}, priority={}, api_ver={}, api_proto={}".format(
+                    srv_type, priority, api_ver, api_proto))
+                return ""
+            except EndOfAggregatorList:
+                self.logger.writeInfo("End of Aggregator list, reloading")
+        else:
+            return ""
+
+    def getHrefWithException(self, srv_type, priority=None, api_ver=None, api_proto=None, flush=False):
         if priority is None:
             priority = self.config["priority"]
 
@@ -92,6 +113,7 @@ class IppmDNSBridge(object):
             self.logger.writeWarning("No services found: {}".format(srv_type))
             if srv_type == "nmos-query":
                 return self._checkLocalQueryServiceExists()
+
             return ""
 
         # Randomise selection. Delete entry from the services list and return it
@@ -101,6 +123,7 @@ class IppmDNSBridge(object):
         href = self._createHref(service)
         self.services[srv_type].remove(service)
         return href
+
 
     def _createHref(self, service):
         proto = service['protocol']
