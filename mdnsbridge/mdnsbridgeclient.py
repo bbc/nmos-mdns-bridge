@@ -22,11 +22,11 @@ from nmoscommon.nmoscommonconfig import config as _config
 from nmoscommon.logger import Logger
 
 
-class NoAggregator(Exception):
+class NoService(Exception):
     pass
 
 
-class EndOfAggregatorList(Exception):
+class EndOfServiceList(Exception):
     pass
 
 
@@ -41,12 +41,12 @@ class IppmDNSBridge(object):
         try:
             try:
                 return self.getHrefWithException(srv_type, priority, api_ver, api_proto, False)
-            except EndOfAggregatorList:
+            except EndOfServiceList:
                 self.logger.writeInfo("End of Aggregator list, reloading")
-                # Re-try after flushing cache
+                # Re-try after cache has been updated
                 return self.getHrefWithException(srv_type, priority, api_ver, api_proto, False)
-        except NoAggregator:
-            self.logger.writeInfo("No Aggregator for for {}, priority={}, api_ver={}, api_proto={}".format(
+        except NoService:
+            self.logger.writeWarning("No Aggregator for for {}, priority={}, api_ver={}, api_proto={}".format(
                 srv_type, priority, api_ver, api_proto))
             return ""
 
@@ -73,11 +73,11 @@ class IppmDNSBridge(object):
             valid_services = self._getValidServices(srv_type, priority, api_ver, api_proto)
 
             if len(valid_services) == 0:
-                raise NoAggregator
+                raise NoService
             else:
-                raise EndOfAggregatorList
+                raise EndOfServiceList
 
-        # Randomise selection. Delete entry from the services list and return it
+        # Randomise selection. Delete entry from the cached list of services and return it
         random.seed()
         index = random.randint(0, len(valid_services)-1)
         service = valid_services[index]
@@ -85,7 +85,7 @@ class IppmDNSBridge(object):
         try:
             self.services[srv_type].remove(service)
         except Exception:
-            self.logger.writeWarning("Could not remove service: {}".format(service))
+            self.logger.writeInfo("Could not remove service: {}".format(service))
 
         return href
 
