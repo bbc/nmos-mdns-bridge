@@ -40,11 +40,11 @@ class IppmDNSBridge(object):
     def getHref(self, srv_type, priority=None, api_ver=None, api_proto=None):
         try:
             try:
-                return self.getHrefWithException(srv_type, priority, api_ver, api_proto, False)
+                return self.getHrefWithException(srv_type, priority, api_ver, api_proto)
             except EndOfServiceList:
                 self.logger.writeInfo("End of Aggregator list, reloading")
                 # Re-try after cache has been updated
-                return self.getHrefWithException(srv_type, priority, api_ver, api_proto, False)
+                return self.getHrefWithException(srv_type, priority, api_ver, api_proto)
         except NoService:
             self.logger.writeWarning("No Aggregator for for {}, priority={}, api_ver={}, api_proto={}".format(
                 srv_type, priority, api_ver, api_proto))
@@ -63,13 +63,13 @@ class IppmDNSBridge(object):
 
         # Flush the cached list of services
         if flush:
-            self._updateServices(srv_type)
+            self.updateServices(srv_type)
 
         # Check if there are any of that type of service, if not do a request
         valid_services = self._getValidServices(srv_type, priority, api_ver, api_proto)
 
         if len(valid_services) == 0:
-            self._updateServices(srv_type)
+            self.updateServices(srv_type)
             valid_services = self._getValidServices(srv_type, priority, api_ver, api_proto)
 
             if len(valid_services) == 0:
@@ -120,7 +120,7 @@ class IppmDNSBridge(object):
         port = service['port']
         return '{}://{}:{}'.format(proto, address, port)
 
-    def _updateServices(self, srv_type):
+    def updateServices(self, srv_type):
         req_url = "http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/" + srv_type + "/"
         try:
             # Request to localhost/x-ipstudio/mdnsbridge/v1.0/<type>/
