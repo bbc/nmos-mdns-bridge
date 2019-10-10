@@ -46,11 +46,11 @@ class IppmDNSBridge(object):
             try:
                 return self.getHrefWithException(srv_type, priority, api_ver, api_proto)
             except EndOfServiceList:
-                self.logger.writeInfo("End of Aggregator list, reloading")
+                self.logger.writeInfo("End of DNS-SD service list, reloading")
                 # Re-try after cache has been updated
                 return self.getHrefWithException(srv_type, priority, api_ver, api_proto)
         except NoService:
-            self.logger.writeWarning("No Aggregator for for {}, priority={}, api_ver={}, api_proto={}".format(
+            self.logger.writeWarning("No DNS-SD service for for {}, priority={}, api_ver={}, api_proto={}".format(
                 srv_type, priority, api_ver, api_proto))
             return ""
 
@@ -86,10 +86,7 @@ class IppmDNSBridge(object):
         index = random.randint(0, len(valid_services)-1)
         service = valid_services[index]
         href = self._createHref(service)
-        try:
-            self.services[srv_type].remove(service)
-        except Exception:
-            self.logger.writeInfo("Could not remove service: {}".format(service))
+        self.services[srv_type].remove(service)
 
         return href
 
