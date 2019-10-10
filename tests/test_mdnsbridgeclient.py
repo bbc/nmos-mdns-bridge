@@ -473,3 +473,60 @@ class TestIppmDNSBridge(unittest.TestCase):
 
         href = self.UUT.getHrefWithException(srv_type)
         self.assertEqual(href, second_services[1]["protocol"] + "://" + second_services[1]["address"] + ":" + str(second_services[1]["port"]))
+
+    @mock.patch('requests.get')
+    def test_updateservices_searches_legacy_dnssd(self, get):
+        srv_type = "nmos-registration"
+        self.UUT.config['priority'] = 0
+        self.UUT.config['https_mode'] = "disabled"
+
+        services = [
+            {"priority": 100, "protocol": "http", "address": "service_address0", "port": 12345, "hostname": "service_host0", "versions": DEFAULT_VERSIONS},
+            {"priority": 102, "protocol": "http", "address": "service_address1", "port": 12346, "hostname": "service_host1", "versions": DEFAULT_VERSIONS},
+            {"priority": 103, "protocol": "http", "address": "service_address2", "port": 12347, "hostname": "service_host2", "versions": DEFAULT_VERSIONS},
+        ]
+
+        get.return_value.status_code = 200
+        get.return_value.json.return_value = {"representation": json.loads(json.dumps(services))}
+        calls = [ mock.call("http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/" + srv_type + "/", timeout=0.5, proxies={'http': ''}),
+                  mock.call().json(),
+                  mock.call("http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/" + "nmos-register" + "/", timeout=0.5, proxies={'http': ''})]
+            
+        self.UUT.updateServices(srv_type)
+        self.assertEqual(self.UUT.services['nmos-registration'], services) 
+        get.assert_has_calls(calls)
+
+    @mock.patch('requests.get')
+    def test_updateservices_merges_version_info(self, get):
+        """ Test that updateServices function merges version data and prioritises nmos-register service data"""
+        srv_type = "nmos-registration"
+        self.UUT.config['priority'] = 0
+        self.UUT.config['https_mode'] = "disabled"
+
+        services = [
+            {"priority": 101, "protocol": "http", "address": "service_address0", "port": 12345, "hostname": "service_host0", "versions": DEFAULT_VERSIONS},
+            {"priority": 102, "protocol": "http", "address": "service_address1", "port": 12346, "hostname": "service_host1", "versions": DEFAULT_VERSIONS},
+            {"priority": 103, "protocol": "http", "address": "service_address2", "port": 12347, "hostname": "service_host2", "versions": DEFAULT_VERSIONS}
+        ]
+
+        second_services = [
+            {"priority": 10, "protocol": "http", "address": "service_address3", "port": 22345, "hostname": "service_host3", "versions": DEFAULT_VERSIONS},
+            {"priority": 20, "protocol": "http", "address": "service_address0", "port": 12345, "hostname": "service_host0", "versions": ['v1.3']}
+        ]
+
+        result = [
+            {"priority": 10, "protocol": "http", "address": "service_address3", "port": 22345, "hostname": "service_host3", "versions": DEFAULT_VERSIONS},
+            {"priority": 20, "protocol": "http", "address": "service_address0", "port": 12345, "hostname": "service_host0", "versions": DEFAULT_VERSIONS + ['v1.3']},
+            {"priority": 102, "protocol": "http", "address": "service_address1", "port": 12346, "hostname": "service_host1", "versions": DEFAULT_VERSIONS},
+            {"priority": 103, "protocol": "http", "address": "service_address2", "port": 12347, "hostname": "service_host2", "versions": DEFAULT_VERSIONS}
+        ]
+
+        getmocks = [mock.MagicMock(name="get1()"), mock.MagicMock(name="get2()")]
+        get.side_effect = [getmocks[0], getmocks[1]]
+        getmocks[0].status_code = 200
+        getmocks[0].json.return_value = {"representation": json.loads(json.dumps(services))}
+        getmocks[1].status_code = 200
+        getmocks[1].json.return_value = {"representation": json.loads(json.dumps(second_services))}
+
+        self.UUT.updateServices(srv_type)
+        self.assertCountEqual(self.UUT.services['nmos-registration'], result) 

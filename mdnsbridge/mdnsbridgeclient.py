@@ -30,6 +30,10 @@ class EndOfServiceList(Exception):
     pass
 
 
+LEGACY_REG_MDNSTYPE = "nmos-registration"
+REGISTRATION_MDNSTYPE = "nmos-register"
+
+
 class IppmDNSBridge(object):
     def __init__(self, logger=None):
         self.logger = Logger("mdnsbridge", logger)
@@ -121,23 +125,54 @@ class IppmDNSBridge(object):
         return '{}://{}:{}'.format(proto, address, port)
 
     def updateServices(self, srv_type):
+        if srv_type == LEGACY_REG_MDNSTYPE:
+            # Search for both DNS-SD service types for registration
+            self.services[srv_type] = self._updateRegistrationServices()
+        else:
+            self.services[srv_type] = self._getServices(srv_type)
+
+    def _updateRegistrationServices(self):
+        """Function to concatenate results from both Registration DNS-SD service types
+        prioritising the nmos-register over nmos-registration
+        """
+        legacy_srv_results = self._getServices(LEGACY_REG_MDNSTYPE)
+        srv_results = self._getServices(REGISTRATION_MDNSTYPE)
+
+        for legacyItem in legacy_srv_results:
+            match = False
+            for srvItem in srv_results:
+                if legacyItem['address'] == srvItem['address'] and legacyItem['port'] == srvItem['port']:
+                    match = True
+                    # Merge version data
+                    versions = list(set(legacyItem['versions']).union(set(srvItem['versions'])))
+                    versions.sort()
+                    srvItem['versions'] = versions
+                    break
+
+            if not match:
+                srv_results.append(legacyItem)
+
+        return srv_results
+
+    def _getServices(self, srv_type):
         req_url = "http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/" + srv_type + "/"
+        services = []
         try:
-            # Request to localhost/x-ipstudio/mdnsbridge/v1.0/<type>/
             r = requests.get(req_url, timeout=0.5, proxies={'http': ''})
             if r is not None and r.status_code == 200:
                 # If any results, put them in self.services
-                self.services[srv_type] = []
                 for dns_data in r.json()["representation"]:
                     if self.config["https_mode"] == "enabled" and dns_data["protocol"] == "https":
-                        self.services[srv_type].append(dns_data)
+                        services.append(dns_data)
                     elif self.config["https_mode"] != "enabled" and dns_data["protocol"] == "http":
-                        self.services[srv_type].append(dns_data)
+                        services.append(dns_data)
                     else:
                         self.logger.writeDebug(("Ignoring service with IP {} as protocol '{}' doesn't match the "
                                                 "current mode").format(dns_data["address"], dns_data["protocol"]))
         except Exception as e:
             self.logger.writeWarning("Exception updating services: {}".format(e))
+
+        return services
 
 
 if __name__ == "__main__":  # pragma: no cover
