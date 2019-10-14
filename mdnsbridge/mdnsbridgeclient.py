@@ -22,6 +22,14 @@ from nmoscommon.nmoscommonconfig import config as _config
 from nmoscommon.logger import Logger
 
 
+class NoService(Exception):
+    pass
+
+
+class EndOfServiceList(Exception):
+    pass
+
+
 class IppmDNSBridge(object):
     def __init__(self, logger=None):
         self.logger = Logger("mdnsbridge", logger)
@@ -29,20 +37,20 @@ class IppmDNSBridge(object):
         self.config = {}
         self.config.update(_config)
 
-    def _checkLocalQueryServiceExists(self):
-        url = "http://127.0.0.1/x-nmos/query/v1.0/"
-        try:
-            # Request to localhost:18870/ - if it succeeds, the service exists AND is running AND is accessible
-            r = requests.get(url, timeout=0.5)
-            if r is not None and r.status_code == 200:
-                # If any results, put them in self.services
-                return url
-
-        except Exception as e:
-            self.logger.writeWarning("No local query service running {}".format(e))
-        return ""
-
     def getHref(self, srv_type, priority=None, api_ver=None, api_proto=None):
+        try:
+            try:
+                return self.getHrefWithException(srv_type, priority, api_ver, api_proto)
+            except EndOfServiceList:
+                self.logger.writeInfo("End of DNS-SD service list, reloading")
+                # Re-try after cache has been updated
+                return self.getHrefWithException(srv_type, priority, api_ver, api_proto)
+        except NoService:
+            self.logger.writeWarning("No DNS-SD service for for {}, priority={}, api_ver={}, api_proto={}".format(
+                srv_type, priority, api_ver, api_proto))
+            return ""
+
+    def getHrefWithException(self, srv_type, priority=None, api_ver=None, api_proto=None, flush=False):
         if priority is None:
             priority = self.config["priority"]
 
@@ -53,22 +61,32 @@ class IppmDNSBridge(object):
         if srv_type not in self.services:
             self.services[srv_type] = []
 
-        # Check if there are any of that type of service, if not do a request
-        no_results = True
-        for service in self.services[srv_type]:
-            if api_ver is not None and api_ver not in service["versions"]:
-                continue
-            if api_proto is not None and api_proto != service["protocol"]:
-                continue
-            if priority >= 100:
-                if service["priority"] == priority:
-                    no_results = False
-            elif service["priority"] < 100:
-                no_results = False
-        if no_results:
-            self._updateServices(srv_type)
+        # Flush the cached list of services
+        if flush:
+            self.updateServices(srv_type)
 
-        # Re-check if there are any and return "" if not.
+        # Check if there are any of that type of service, if not do a request
+        valid_services = self._getValidServices(srv_type, priority, api_ver, api_proto)
+
+        if len(valid_services) == 0:
+            self.updateServices(srv_type)
+            valid_services = self._getValidServices(srv_type, priority, api_ver, api_proto)
+
+            if len(valid_services) == 0:
+                raise NoService
+            else:
+                raise EndOfServiceList
+
+        # Randomise selection. Delete entry from the cached list of services and return it
+        random.seed()
+        index = random.randint(0, len(valid_services)-1)
+        service = valid_services[index]
+        href = self._createHref(service)
+        self.services[srv_type].remove(service)
+
+        return href
+
+    def _getValidServices(self, srv_type, priority, api_ver=None, api_proto=None):
         current_priority = 99
         valid_services = []
         for service in self.services[srv_type]:
@@ -78,26 +96,15 @@ class IppmDNSBridge(object):
                 continue
             if priority >= 100:
                 if service["priority"] == priority:
-                    return self._createHref(service)
+                    valid_services.append(service)
             else:
                 if service["priority"] < current_priority:
                     current_priority = service["priority"]
                     valid_services = []
                 if service["priority"] == current_priority:
                     valid_services.append(service)
-        if len(valid_services) == 0:
-            self.logger.writeWarning("No services found: {}".format(srv_type))
-            if srv_type == "nmos-query":
-                return self._checkLocalQueryServiceExists()
-            return ""
 
-        # Randomise selection. Delete entry from the services list and return it
-        random.seed()
-        index = random.randint(0, len(valid_services)-1)
-        service = valid_services[index]
-        href = self._createHref(service)
-        self.services[srv_type].remove(service)
-        return href
+        return valid_services
 
     def _createHref(self, service):
         proto = service['protocol']
@@ -110,7 +117,7 @@ class IppmDNSBridge(object):
         port = service['port']
         return '{}://{}:{}'.format(proto, address, port)
 
-    def _updateServices(self, srv_type):
+    def updateServices(self, srv_type):
         req_url = "http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/" + srv_type + "/"
         try:
             # Request to localhost/x-ipstudio/mdnsbridge/v1.0/<type>/

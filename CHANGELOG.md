@@ -1,5 +1,9 @@
 # NMOS mDNS Bridge Library Changelog
 
+
+## 0.9.0
+- Add method to raise an exception when no service found or when end of list reached
+
 ## 0.8.1
 - Handle case where txt data includes a boolean
 
