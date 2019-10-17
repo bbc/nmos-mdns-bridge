@@ -152,7 +152,7 @@ class IppmDNSBridge(object):
         return srv_results
 
     def _getServices(self, srv_type):
-        req_url = "http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/" + srv_type + "/"
+        req_url = "http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/{}/".format(srv_type)
         services = []
         try:
             r = requests.get(req_url, timeout=0.5, proxies={'http': ''})
