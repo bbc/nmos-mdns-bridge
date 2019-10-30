@@ -20,10 +20,7 @@ import os
 
 
 def is_package(path):
-    return (
-        os.path.isdir(path) and
-        os.path.isfile(os.path.join(path, '__init__.py'))
-        )
+    return (os.path.isdir(path) and os.path.isfile(os.path.join(path, '__init__.py')))
 
 
 def find_packages(path, base=""):
@@ -54,7 +51,7 @@ packages_required = [
 ]
 
 setup(name="mdnsbridge",
-      version="0.9.0",
+      version="0.9.1",
       description="An API providing a DNS-SD/HTTP bridge for AMWA NMOS service types",
       url='https://github.com/bbc/nmos-mdns-bridge',
       author='Peter Brightwell',

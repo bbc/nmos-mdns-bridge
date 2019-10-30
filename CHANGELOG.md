@@ -1,5 +1,7 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.9.1
+- Clean-up before stopping service thread
 
 ## 0.9.0
 - Add method to raise an exception when no service found or when end of list reached

@@ -68,16 +68,16 @@ class mDNSBridgeService(object):
                 if self.facade:
                     self.facade.heartbeat_service()
                 itercount = 0
-        if self.facade:
-            self.facade.unregister_service()
-        self._cleanup()
 
     def stop(self):
+        self._cleanup()
         self.running = False
 
     def _cleanup(self):
         self.http_server.stop()
         self.mdns_bridge.stop()
+        if self.facade:
+            self.facade.unregister_service()
         print("Stopped main()")
 
     def sig_handler(self):
