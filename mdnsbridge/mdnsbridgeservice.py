@@ -70,9 +70,9 @@ class mDNSBridgeService(object):
                 itercount = 0
         if self.facade:
             self.facade.unregister_service()
-        self._cleanup()
 
     def stop(self):
+        self._cleanup()
         self.running = False
 
     def _cleanup(self):

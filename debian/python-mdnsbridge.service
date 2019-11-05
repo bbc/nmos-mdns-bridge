@@ -5,7 +5,7 @@ After=network.target network-online.target avahi-daemon.service apache2.service 
 
 [Service]
 User=ipstudio
-ExecStart=/usr/bin/nmos-mdnsbridge
+ExecStart=/usr/bin/python2 /usr/bin/nmos-mdnsbridge
 
 [Install]
 Alias=nmos-mdnsbridge.service ips-mdnsbridge.service
