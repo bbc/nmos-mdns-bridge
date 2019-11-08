@@ -20,10 +20,7 @@ import os
 
 
 def is_package(path):
-    return (
-        os.path.isdir(path) and
-        os.path.isfile(os.path.join(path, '__init__.py'))
-        )
+    return (os.path.isdir(path) and os.path.isfile(os.path.join(path, '__init__.py')))
 
 
 def find_packages(path, base=""):
@@ -53,19 +50,20 @@ packages_required = [
     "requests"
 ]
 
-setup(name="mdnsbridge",
-      version="0.9.0",
-      description="An API providing a DNS-SD/HTTP bridge for AMWA NMOS service types",
-      url='https://github.com/bbc/nmos-mdns-bridge',
-      author='Peter Brightwell',
-      author_email='peter.brightwell@bbc.co.uk',
-      license='Apache 2',
-      packages=package_names,
-      package_dir=packages,
-      install_requires=packages_required,
-      scripts=[],
-      data_files=[
+setup(
+    name="mdnsbridge",
+    version="0.9.1",
+    description="An API providing a DNS-SD/HTTP bridge for AMWA NMOS service types",
+    url='https://github.com/bbc/nmos-mdns-bridge',
+    author='Peter Brightwell',
+    author_email='peter.brightwell@bbc.co.uk',
+    license='Apache 2',
+    packages=package_names,
+    package_dir=packages,
+    install_requires=packages_required,
+    scripts=[],
+    data_files=[
         ('/usr/bin', ['bin/nmos-mdnsbridge'])
-      ],
-      long_description="This API provides a DNS-SD/HTTP bridge for NMOS service types"
-      )
+    ],
+    long_description="This API provides a DNS-SD/HTTP bridge for NMOS service types"
+)
