@@ -1,5 +1,7 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.9.1
+- Alter executable to run using Python3, alter `stdeb` to replace python 2 package, call `cleanup` in stop()
 
 ## 0.9.0
 - Add method to raise an exception when no service found or when end of list reached
