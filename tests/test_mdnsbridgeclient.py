@@ -389,39 +389,6 @@ class TestIppmDNSBridge(unittest.TestCase):
         self.assertEqual(href, services[0]["protocol"] + "://" + services[0]["hostname"] + ":" + str(services[0]["port"]))
 
     @mock.patch('requests.get')
-    @mock.patch('random.randint', return_value=0)  # guaranteed random, chosen by roll of fair die
-    def test_gethrefwithexception_does_not_use_cache_when_flushed(self, rand, get):
-        srv_type = "potato"
-        self.UUT.config['priority'] = 0
-        self.UUT.config['https_mode'] = "disabled"
-
-        services = [
-            {"priority": 10, "protocol": "http", "address": "service_address0", "port": 12345, "hostname": "service_host0", "versions": DEFAULT_VERSIONS},
-            {"priority": 20, "protocol": "http", "address": "service_address1", "port": 12346, "hostname": "service_host1", "versions": DEFAULT_VERSIONS},
-            {"priority": 30, "protocol": "http", "address": "service_address2", "port": 12347, "hostname": "service_host2", "versions": DEFAULT_VERSIONS},
-        ]
-
-        second_services = [
-            {"priority": 10, "protocol": "http", "address": "service_address0", "port": 22345, "hostname": "service_host0", "versions": DEFAULT_VERSIONS},
-            {"priority": 0, "protocol": "http", "address": "service_address1", "port": 22346, "hostname": "service_host1", "versions": DEFAULT_VERSIONS},
-        ]
-
-        getmocks = [mock.MagicMock(name="get1()"), mock.MagicMock(name="get2()")]
-        get.side_effect = [getmocks[0], getmocks[1]]
-        getmocks[0].status_code = 200
-        getmocks[0].json.return_value = {"representation": json.loads(json.dumps(services))}
-        getmocks[1].status_code = 200
-        getmocks[1].json.return_value = {"representation": json.loads(json.dumps(second_services))}
-        href = self.UUT.getHrefWithException(srv_type, flush=True)
-        get.assert_called_once_with("http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/" + srv_type + "/", timeout=0.5, proxies={'http': ''})
-        self.assertEqual(href, services[0]["protocol"] + "://" + services[0]["address"] + ":" + str(services[0]["port"]))
-
-        get.reset_mock()
-        href = self.UUT.getHrefWithException(srv_type, flush=True)
-        get.assert_called_once_with("http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/" + srv_type + "/", timeout=0.5, proxies={'http': ''})
-        self.assertEqual(href, second_services[1]["protocol"] + "://" + second_services[1]["address"] + ":" + str(second_services[1]["port"]))
-
-    @mock.patch('requests.get')
     def test_gethrefwithexception_does_raises_noservice_exception(self, get):
         srv_type = "potato"
         self.UUT.config['priority'] = 0
@@ -449,22 +416,10 @@ class TestIppmDNSBridge(unittest.TestCase):
             {"priority": 0, "protocol": "http", "address": "service_address0", "port": 12345, "hostname": "service_host0", "versions": DEFAULT_VERSIONS},
         ]
 
-        second_services = [
-            {"priority": 10, "protocol": "http", "address": "service_address0", "port": 22345, "hostname": "service_host0", "versions": DEFAULT_VERSIONS},
-            {"priority": 0, "protocol": "http", "address": "service_address1", "port": 22346, "hostname": "service_host1", "versions": DEFAULT_VERSIONS},
-        ]
-
-        getmocks = [mock.MagicMock(name="get1()"), mock.MagicMock(name="get2()")]
-        get.side_effect = [getmocks[0], getmocks[1]]
+        getmocks = [mock.MagicMock(name="get1()")]
+        get.side_effect = [getmocks[0]]
         getmocks[0].status_code = 200
         getmocks[0].json.return_value = {"representation": json.loads(json.dumps(services))}
-        getmocks[1].status_code = 200
-        getmocks[1].json.return_value = {"representation": json.loads(json.dumps(second_services))}
-        href = self.UUT.getHrefWithException(srv_type, flush=True)
-        get.assert_called_once_with("http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/" + srv_type + "/", timeout=0.5, proxies={'http': ''})
-        self.assertEqual(href, services[0]["protocol"] + "://" + services[0]["address"] + ":" + str(services[0]["port"]))
-
-        get.reset_mock()
 
         with self.assertRaises(EndOfServiceList):
             self.UUT.getHrefWithException(srv_type)
@@ -472,4 +427,27 @@ class TestIppmDNSBridge(unittest.TestCase):
         get.assert_called_once_with("http://127.0.0.1/x-ipstudio/mdnsbridge/v1.0/" + srv_type + "/", timeout=0.5, proxies={'http': ''})
 
         href = self.UUT.getHrefWithException(srv_type)
-        self.assertEqual(href, second_services[1]["protocol"] + "://" + second_services[1]["address"] + ":" + str(second_services[1]["port"]))
+        self.assertEqual(href, services[0]["protocol"] + "://" + services[0]["address"] + ":" + str(services[0]["port"]))
+
+    @mock.patch('requests.get')
+    @mock.patch('random.randint', return_value=0)  # guaranteed random, chosen by roll of fair die
+    def test_gethref_returns_service_with_correct_authorization(self, rand, get):
+        srv_type = "potato"
+        self.UUT.config['priority'] = 0
+        self.UUT.config['https_mode'] = "disabled"
+
+        services = [
+            {"priority": 0, "protocol": "http", "address": "service_address0", "port": 12345, "hostname": "service_host0", "versions": DEFAULT_VERSIONS, "authorization": False},
+            {"priority": 0, "protocol": "http", "address": "service_address1", "port": 12346, "hostname": "service_host1", "versions": DEFAULT_VERSIONS, "authorization": False},
+            {"priority": 0, "protocol": "http", "address": "service_address2", "port": 12347, "hostname": "service_host2", "versions": DEFAULT_VERSIONS, "authorization": True},
+            {"priority": 0, "protocol": "http", "address": "service_address2", "port": 12348, "hostname": "service_host3", "versions": DEFAULT_VERSIONS, "authorization": True}
+        ]
+
+        get.return_value.status_code = 200
+        get.return_value.json.return_value = {"representation": json.loads(json.dumps(services))}
+        href = self.UUT.getHref(srv_type, api_auth=True)
+        self.assertEqual(href, services[2]["protocol"] + "://" + services[2]["address"] + ":" + str(services[2]["port"]))
+
+        href = self.UUT.getHrefWithException(srv_type, api_auth=True)
+        self.assertEqual(href, services[3]["protocol"] + "://" + services[3]["address"] + ":" + str(services[3]["port"]))
+
