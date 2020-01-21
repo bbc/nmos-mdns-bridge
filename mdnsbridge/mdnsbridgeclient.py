@@ -37,7 +37,7 @@ class IppmDNSBridge(object):
         self.config = {}
         self.config.update(_config)
 
-    def getHref(self, srv_type, priority=None, api_ver=None, api_proto=None, api_auth=False):
+    def getHref(self, srv_type, priority=None, api_ver=None, api_proto=None, api_auth=None):
         try:
             try:
                 return self.getHrefWithException(srv_type, priority, api_ver, api_proto, api_auth)
@@ -50,7 +50,7 @@ class IppmDNSBridge(object):
                 srv_type, priority, api_ver, api_proto))
             return ""
 
-    def getHrefWithException(self, srv_type, priority=None, api_ver=None, api_proto=None, api_auth=False):
+    def getHrefWithException(self, srv_type, priority=None, api_ver=None, api_proto=None, api_auth=None):
         if priority is None:
             priority = self.config["priority"]
 
@@ -82,7 +82,7 @@ class IppmDNSBridge(object):
 
         return href
 
-    def _getValidServices(self, srv_type, priority, api_ver=None, api_proto=None, api_auth=False):
+    def _getValidServices(self, srv_type, priority, api_ver=None, api_proto=None, api_auth=None):
         current_priority = 99
         valid_services = []
         for service in self.services[srv_type]:
@@ -90,7 +90,7 @@ class IppmDNSBridge(object):
                 continue
             if api_proto is not None and api_proto != service["protocol"]:
                 continue
-            if api_auth != service.get("authorization", False):
+            if api_auth is not None and api_auth != service.get("authorization", False):
                 continue
             if priority >= 100:
                 if service["priority"] == priority:
