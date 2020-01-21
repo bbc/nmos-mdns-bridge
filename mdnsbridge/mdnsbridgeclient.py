@@ -37,20 +37,21 @@ class IppmDNSBridge(object):
         self.config = {}
         self.config.update(_config)
 
-    def getHref(self, srv_type, priority=None, api_ver=None, api_proto=None):
+    def getHref(self, srv_type, priority=None, api_ver=None, api_proto=None, api_auth=None):
         try:
             try:
-                return self.getHrefWithException(srv_type, priority, api_ver, api_proto)
+                return self.getHrefWithException(srv_type, priority, api_ver, api_proto, api_auth)
             except EndOfServiceList:
                 self.logger.writeInfo("End of DNS-SD service list, reloading")
                 # Re-try after cache has been updated
-                return self.getHrefWithException(srv_type, priority, api_ver, api_proto)
+                return self.getHrefWithException(srv_type, priority, api_ver, api_proto, api_auth)
         except NoService:
-            self.logger.writeWarning("No DNS-SD service for for {}, priority={}, api_ver={}, api_proto={}".format(
-                srv_type, priority, api_ver, api_proto))
+            self.logger.writeWarning(
+                "No DNS-SD service for {}, priority={}, api_ver={}, api_proto={}, api_auth={}".format(
+                    srv_type, priority, api_ver, api_proto, api_auth))
             return ""
 
-    def getHrefWithException(self, srv_type, priority=None, api_ver=None, api_proto=None, flush=False):
+    def getHrefWithException(self, srv_type, priority=None, api_ver=None, api_proto=None, api_auth=None):
         if priority is None:
             priority = self.config["priority"]
 
@@ -61,16 +62,12 @@ class IppmDNSBridge(object):
         if srv_type not in self.services:
             self.services[srv_type] = []
 
-        # Flush the cached list of services
-        if flush:
-            self.updateServices(srv_type)
-
         # Check if there are any of that type of service, if not do a request
-        valid_services = self._getValidServices(srv_type, priority, api_ver, api_proto)
+        valid_services = self._getValidServices(srv_type, priority, api_ver, api_proto, api_auth)
 
         if len(valid_services) == 0:
             self.updateServices(srv_type)
-            valid_services = self._getValidServices(srv_type, priority, api_ver, api_proto)
+            valid_services = self._getValidServices(srv_type, priority, api_ver, api_proto, api_auth)
 
             if len(valid_services) == 0:
                 raise NoService
@@ -79,20 +76,22 @@ class IppmDNSBridge(object):
 
         # Randomise selection. Delete entry from the cached list of services and return it
         random.seed()
-        index = random.randint(0, len(valid_services)-1)
+        index = random.randint(0, len(valid_services) - 1)
         service = valid_services[index]
         href = self._createHref(service)
         self.services[srv_type].remove(service)
 
         return href
 
-    def _getValidServices(self, srv_type, priority, api_ver=None, api_proto=None):
+    def _getValidServices(self, srv_type, priority, api_ver=None, api_proto=None, api_auth=None):
         current_priority = 99
         valid_services = []
         for service in self.services[srv_type]:
             if api_ver is not None and api_ver not in service["versions"]:
                 continue
             if api_proto is not None and api_proto != service["protocol"]:
+                continue
+            if api_auth is not None and api_auth != service.get("authorization", False):
                 continue
             if priority >= 100:
                 if service["priority"] == priority:

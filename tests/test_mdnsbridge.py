@@ -129,8 +129,7 @@ class TestmDNSBridge(unittest.TestCase):
 
     def assert_registered_callback_correctly_handles_data_from_mdns(
             self, type, action, name, address=None,
-            prefer_ipv6=False, expect_no_add=False, priority=100
-            ):
+            prefer_ipv6=False, expect_no_add=False, priority=100):
         expected = {'protocol': 'http',
                     'hostname': 'test.example.com',
                     'name': name,

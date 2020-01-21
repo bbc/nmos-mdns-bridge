@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.9.2
+- Add `api_auth` parameter to MDNS Client
+
 ## 0.9.1
 - Alter executable to run using Python3, alter `stdeb` to replace python 2 package, call `cleanup` in stop()
 

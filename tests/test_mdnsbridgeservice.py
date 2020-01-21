@@ -16,7 +16,7 @@ import unittest
 import mock
 import six
 from gevent import signal
-from cysystemd.daemon import Notification 
+from cysystemd.daemon import Notification
 
 
 with mock.patch("mdnsbridge.mdnsbridgeservice.monkey"):
@@ -38,9 +38,8 @@ class TestmDNSBridgeService(unittest.TestCase):
     @mock.patch('mdnsbridge.mdnsbridgeservice.HttpServer')
     @mock.patch('mdnsbridge.mdnsbridgeservice.daemon')
     def assert_run_starts_runs_and_stops_as_expected(
-        self, n, daemon, HttpServer, mDNSBridge, sleep,
-        gevent_signal, http_server_fails_with_exception=None
-            ):
+            self, n, daemon, HttpServer, mDNSBridge, sleep,
+            gevent_signal, http_server_fails_with_exception=None):
         HttpServer.return_value.started.is_set.side_effect = [False, False, False, True]
         HttpServer.return_value.failed = http_server_fails_with_exception
 
@@ -85,7 +84,7 @@ class TestmDNSBridgeService(unittest.TestCase):
             )
             daemon.notify.assert_called_once_with(Notification.READY)
             self.assertListEqual(
-                self.UUT.facade.heartbeat_service.mock_calls, [mock.call() for x in range(0, len(responses)//5)]
+                self.UUT.facade.heartbeat_service.mock_calls, [mock.call() for x in range(0, len(responses) // 5)]
             )
             self.UUT.facade.unregister_service.assert_called_once_with()
             HttpServer.return_value.stop.assert_called_once_with()
