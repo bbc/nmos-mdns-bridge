@@ -46,7 +46,7 @@ class IppmDNSBridge(object):
                 # Re-try after cache has been updated
                 return self.getHrefWithException(srv_type, priority, api_ver, api_proto, api_auth)
         except NoService:
-            self.logger.writeWarning("No DNS-SD service for for {}, priority={}, api_ver={}, api_proto={}".format(
+            self.logger.writeWarning("No DNS-SD service for {}, priority={}, api_ver={}, api_proto={}".format(
                 srv_type, priority, api_ver, api_proto))
             return ""
 
@@ -75,7 +75,7 @@ class IppmDNSBridge(object):
 
         # Randomise selection. Delete entry from the cached list of services and return it
         random.seed()
-        index = random.randint(0, len(valid_services)-1)
+        index = random.randint(0, len(valid_services) - 1)
         service = valid_services[index]
         href = self._createHref(service)
         self.services[srv_type].remove(service)
