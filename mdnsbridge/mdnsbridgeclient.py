@@ -46,8 +46,9 @@ class IppmDNSBridge(object):
                 # Re-try after cache has been updated
                 return self.getHrefWithException(srv_type, priority, api_ver, api_proto, api_auth)
         except NoService:
-            self.logger.writeWarning("No DNS-SD service for {}, priority={}, api_ver={}, api_proto={}".format(
-                srv_type, priority, api_ver, api_proto))
+            self.logger.writeWarning(
+                "No DNS-SD service for {}, priority={}, api_ver={}, api_proto={}, api_auth={}".format(
+                    srv_type, priority, api_ver, api_proto, api_auth))
             return ""
 
     def getHrefWithException(self, srv_type, priority=None, api_ver=None, api_proto=None, api_auth=None):
