@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.9.3
+- Fix `api_auth` value error in `mdns_callback`
+
 ## 0.9.2
 - Add `api_auth` parameter to MDNS Client
 
