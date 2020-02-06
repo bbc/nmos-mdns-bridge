@@ -91,7 +91,7 @@ class mDNSBridge(object):
             if "api_proto" in txt_data:
                 protocol = txt_data["api_proto"]
             if "api_auth" in txt_data:
-                if txt_data["api_auth"] == "true":
+                if txt_data["api_auth"] is True:
                     authorization = True
             service_entry = {
                 "name": data["name"], "address": data["address"], "port": data["port"], "txt": txt_data,
