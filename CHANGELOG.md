@@ -1,5 +1,8 @@
 # NMOS mDNS Bridge Library Changelog
 
+## 0.9.4
+- Pin Werkzeug version to prevent Flask pulling in version 1.0
+
 ## 0.9.3
 - Fix `api_auth` value error in `mdns_callback`
 

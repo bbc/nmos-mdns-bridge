@@ -47,12 +47,13 @@ packages_required = [
     "nmoscommon>=0.12.0",
     "flask>=0.10.1",
     "cysystemd",
-    "requests"
+    "requests",
+    "werkzeug>=0.14.1,<1.0.0"  # Echo pin from nmos-common to avoid Flask overriding it
 ]
 
 setup(
     name="mdnsbridge",
-    version="0.9.3",
+    version="0.9.4",
     description="An API providing a DNS-SD/HTTP bridge for AMWA NMOS service types",
     url='https://github.com/bbc/nmos-mdns-bridge',
     author='Peter Brightwell',
