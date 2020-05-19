@@ -38,8 +38,8 @@ class mDNSBridgeService(object):
 
     def start(self):
         if self.running:
-            gevent.signal(signal.SIGINT, self.sig_handler)
-            gevent.signal(signal.SIGTERM, self.sig_handler)
+            gevent.signal_handler(signal.SIGINT, self.sig_handler)
+            gevent.signal_handler(signal.SIGTERM, self.sig_handler)
 
         self.mdns_bridge = mDNSBridge(domain=self.domain)
         self.http_server = HttpServer(mDNSBridgeAPI, PORT, HOST, api_args=[self.mdns_bridge])
