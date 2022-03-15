@@ -31,7 +31,7 @@ The mDNS Bridge makes use of a configuration file provided by the [NMOS Common L
 
 ## Usage
 
-On systems using systemd for service management (e.g Ubuntu >= 16.04) mdnsbridge may be run as a service. To enable the service create a symbolic link and start the service as follows:
+On systems using systemd for service management (e.g Ubuntu >= 20.04) mdnsbridge may be run as a service. To enable the service create a symbolic link and start the service as follows:
 
 ```bash
 sudo ln -s /lib/systemd/system/mdnsbridge.service /etc/systemd/system/multi-user.target.wants/mdnsbridge.service
