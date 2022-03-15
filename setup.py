@@ -43,12 +43,12 @@ package_names = packages.keys()
 
 # REMEMBER: If this list is updated, please also update stdeb.cfg and the RPM specfile
 packages_required = [
-    "gevent>=1.2.2",
+    "gevent>=20.4.0",
     "nmoscommon>=0.12.0",
     "flask>=0.10.1",
     "cysystemd",
     "requests",
-    "werkzeug>=0.14.1,<1.0.0"  # Echo pin from nmos-common to avoid Flask overriding it
+    "werkzeug>=2.0.0", # Echo pin from nmos-common to avoid Flask overriding it
 ]
 
 setup(
